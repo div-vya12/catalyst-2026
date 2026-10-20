@@ -124,6 +124,7 @@ export interface RegistrationInput {
   college: string;
   yearOfStudy: string;
   delegateType: string;
+  collegeIdUrl?: string;
   selectedEvents: string[];
   amountPayable: number;
   currency?: string;
@@ -152,6 +153,7 @@ export async function ensureDatabaseTables() {
         "college" TEXT NOT NULL,
         "yearOfStudy" TEXT NOT NULL,
         "delegateType" TEXT NOT NULL,
+        "collegeIdUrl" TEXT,
         "selectedEvents" TEXT[] NOT NULL DEFAULT '{}',
         "amountPayable" INTEGER NOT NULL DEFAULT 0,
         "currency" TEXT NOT NULL DEFAULT 'INR',
@@ -161,6 +163,8 @@ export async function ensureDatabaseTables() {
         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Registration_pkey" PRIMARY KEY ("id")
       );
+
+      ALTER TABLE "Registration" ADD COLUMN IF NOT EXISTS "collegeIdUrl" TEXT;
     `);
 
     await client.$executeRawUnsafe(`
@@ -199,6 +203,7 @@ export async function saveRegistration(input: RegistrationInput) {
           college: input.college.trim(),
           yearOfStudy: input.yearOfStudy,
           delegateType: input.delegateType,
+          collegeIdUrl: input.collegeIdUrl,
           selectedEvents: input.selectedEvents,
           amountPayable: input.amountPayable,
           currency: input.currency || "INR",
@@ -224,6 +229,7 @@ export async function saveRegistration(input: RegistrationInput) {
                 college: input.college.trim(),
                 yearOfStudy: input.yearOfStudy,
                 delegateType: input.delegateType,
+                collegeIdUrl: input.collegeIdUrl,
                 selectedEvents: input.selectedEvents,
                 amountPayable: input.amountPayable,
                 currency: input.currency || "INR",

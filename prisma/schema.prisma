@@ -16,6 +16,7 @@ model Registration {
   college        String
   yearOfStudy    String
   delegateType   String
+  collegeIdUrl   String?
   selectedEvents String[]
   amountPayable  Int      @default(0)
   currency       String   @default("INR")

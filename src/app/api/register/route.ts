@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
       college,
       yearOfStudy,
       delegateType,
+      collegeIdUrl,
       selectedEvents,
     } = body;
 
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
       college,
       yearOfStudy,
       delegateType,
+      collegeIdUrl,
       selectedEvents,
       amountPayable: calculatedTotal,
       currency: "INR",

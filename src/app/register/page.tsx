@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -10,11 +10,13 @@ import {
   Building,
   Mail,
   Phone,
-  ShieldCheck,
   CheckCircle2,
   Download,
-  QrCode,
-  Calendar,
+  Image as ImageIcon,
+  UploadCloud,
+  X,
+  FileCheck,
+  Camera,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { conferenceData } from "@/data/conferenceData";
@@ -28,6 +30,11 @@ export default function RegisterPage() {
     delegateType === "maulanian" ? "Maulana Azad Medical College (MAMC)" : ""
   );
   const [yearOfStudy, setYearOfStudy] = useState("1st Professional MBBS");
+  const [collegeIdUrl, setCollegeIdUrl] = useState<string>("");
+  const [collegeIdFileName, setCollegeIdFileName] = useState<string>("");
+  const [isCompressingImage, setIsCompressingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredPass, setRegisteredPass] = useState<any | null>(null);
@@ -36,6 +43,61 @@ export default function RegisterPage() {
     setSelectedEvents((prev) =>
       prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
     );
+  };
+
+  // Image upload & client-side compression
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image (JPEG, PNG, WebP).");
+      return;
+    }
+
+    setIsCompressingImage(true);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Compress using off-screen canvas (max 1000px, 0.75 JPEG quality)
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 1000;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.75);
+        setCollegeIdUrl(compressedDataUrl);
+        setCollegeIdFileName(file.name);
+        setIsCompressingImage(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeCollegeId = () => {
+    setCollegeIdUrl("");
+    setCollegeIdFileName("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const calculateTotal = () => {
@@ -82,6 +144,7 @@ export default function RegisterPage() {
           college,
           yearOfStudy,
           delegateType,
+          collegeIdUrl,
           selectedEvents,
         }),
       });
@@ -101,7 +164,7 @@ export default function RegisterPage() {
       } else {
         alert(json.error || "Failed to process registration");
       }
-    } catch (err: any) {
+    } catch {
       // Offline / fallback simulated pass
       const fallbackTicketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       setRegisteredPass({
@@ -112,6 +175,7 @@ export default function RegisterPage() {
         college,
         yearOfStudy,
         delegateType,
+        collegeIdUrl,
         selectedEvents,
         amountPayable: totalFee,
         status: totalFee === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
@@ -272,6 +336,76 @@ export default function RegisterPage() {
                     <option>Compulsory Rotatory Medical Intern</option>
                     <option>Postgraduate Resident (MD/MS)</option>
                   </select>
+                </div>
+
+                {/* College ID Image Upload */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs text-zinc-300 font-medium">
+                      College ID Card Photo (Image Verification)
+                    </label>
+                    <span className="text-[11px] text-zinc-500">
+                      {delegateType === "maulanian" ? "Required for MAMC Free Waiver" : "Optional"}
+                    </span>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="collegeIdUpload"
+                  />
+
+                  {!collegeIdUrl ? (
+                    <label
+                      htmlFor="collegeIdUpload"
+                      className="flex flex-col items-center justify-center p-4 border border-dashed border-zinc-700 hover:border-zinc-500 rounded-xl bg-zinc-900/60 cursor-pointer transition-colors text-center group"
+                    >
+                      <div className="p-2.5 rounded-xl bg-zinc-800 text-zinc-400 group-hover:text-white transition-colors mb-2">
+                        {isCompressingImage ? (
+                          <UploadCloud className="w-5 h-5 animate-bounce" />
+                        ) : (
+                          <Camera className="w-5 h-5" />
+                        )}
+                      </div>
+                      <span className="text-xs font-semibold text-white">
+                        {isCompressingImage ? "Processing photo..." : "Upload College ID Photo"}
+                      </span>
+                      <span className="text-[11px] text-zinc-500 mt-0.5">
+                        JPEG, PNG, or WebP (capture from mobile camera or select file)
+                      </span>
+                    </label>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={collegeIdUrl}
+                          alt="College ID Preview"
+                          className="w-12 h-12 object-cover rounded-lg border border-zinc-700 shrink-0"
+                        />
+                        <div className="text-xs">
+                          <span className="font-semibold text-white block truncate max-w-[200px] sm:max-w-xs">
+                            {collegeIdFileName || "College_ID.jpg"}
+                          </span>
+                          <span className="text-[11px] text-emerald-400 flex items-center gap-1">
+                            <FileCheck className="w-3 h-3" />
+                            <span>Photo attached &amp; compressed</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={removeCollegeId}
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors"
+                        title="Remove photo"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

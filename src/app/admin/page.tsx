@@ -19,6 +19,9 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
+  Eye,
+  X,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface RegistrationRecord {
@@ -30,6 +33,7 @@ interface RegistrationRecord {
   college: string;
   yearOfStudy: string;
   delegateType: string;
+  collegeIdUrl?: string | null;
   selectedEvents: string[];
   amountPayable: number;
   currency: string;
@@ -52,6 +56,12 @@ export default function AdminPage() {
   const [storageSource, setStorageSource] = useState<string>("unknown");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "maulanian" | "non-maulanian">("all");
+  const [selectedIdImage, setSelectedIdImage] = useState<{
+    name: string;
+    college: string;
+    ticketId: string;
+    url: string;
+  } | null>(null);
 
   // Check stored token on mount
   useEffect(() => {
@@ -154,6 +164,7 @@ export default function AdminPage() {
       "College",
       "Year of Study",
       "Category",
+      "College ID Uploaded",
       "Events",
       "Amount (INR)",
       "Status",
@@ -168,6 +179,7 @@ export default function AdminPage() {
       `"${r.college.replace(/"/g, '""')}"`,
       r.yearOfStudy,
       r.delegateType,
+      r.collegeIdUrl ? "YES" : "NO",
       `"${(r.selectedEvents || []).join(", ")}"`,
       r.amountPayable,
       r.status,
@@ -428,6 +440,7 @@ export default function AdminPage() {
                   <th className="py-3 px-4">Delegate Name</th>
                   <th className="py-3 px-4">Institution &amp; Year</th>
                   <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-4">College ID</th>
                   <th className="py-3 px-4">Events Registered</th>
                   <th className="py-3 px-4">Fee</th>
                   <th className="py-3 px-4">Status</th>
@@ -438,7 +451,7 @@ export default function AdminPage() {
               <tbody className="divide-y divide-zinc-800 text-zinc-300">
                 {filteredRegistrations.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-12 text-center text-zinc-500">
+                    <td colSpan={10} className="py-12 text-center text-zinc-500">
                       {loadingRegistrations
                         ? "Loading database records..."
                         : "No registration records found."}
@@ -462,6 +475,28 @@ export default function AdminPage() {
                         <span className="px-2 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300">
                           {reg.delegateType}
                         </span>
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {reg.collegeIdUrl ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSelectedIdImage({
+                                name: reg.fullName,
+                                college: reg.college,
+                                ticketId: reg.ticketId,
+                                url: reg.collegeIdUrl!,
+                              })
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-750 text-zinc-200 border border-zinc-700 hover:border-zinc-500 transition-colors"
+                            title="View uploaded College ID"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-[11px] font-medium">View ID</span>
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-zinc-600 italic">None</span>
+                        )}
                       </td>
                       <td className="py-3 px-4 max-w-xs">
                         <div className="flex flex-wrap gap-1">
@@ -504,6 +539,71 @@ export default function AdminPage() {
             </table>
           </div>
         </div>
+
+        {/* College ID Image Modal */}
+        {selectedIdImage && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+            onClick={() => setSelectedIdImage(null)}
+          >
+            <div
+              className="bg-[#11131c] border border-zinc-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-emerald-400">
+                    <ImageIcon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-white">Student College ID Photo</h3>
+                    <p className="text-[11px] text-zinc-400">
+                      {selectedIdImage.name} • {selectedIdImage.ticketId}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedIdImage(null)}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-4 bg-zinc-950 flex items-center justify-center max-h-[65vh] overflow-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedIdImage.url}
+                  alt={`College ID for ${selectedIdImage.name}`}
+                  className="max-h-[55vh] max-w-full rounded-lg object-contain shadow-lg border border-zinc-800"
+                />
+              </div>
+
+              <div className="p-4 border-t border-zinc-800 bg-[#11131c] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="text-[11px] text-zinc-400 text-center sm:text-left truncate w-full sm:w-auto">
+                  Institution: <span className="text-zinc-200">{selectedIdImage.college}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={selectedIdImage.url}
+                    download={`college_id_${selectedIdImage.ticketId}.jpg`}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-white flex items-center gap-1.5 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Save Image</span>
+                  </a>
+                  <button
+                    onClick={() => setSelectedIdImage(null)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
