@@ -11,8 +11,10 @@ import {
   Database,
   Activity,
   Clock,
-  Server,
   Layers,
+  Wrench,
+  HelpCircle,
+  ExternalLink,
 } from "lucide-react";
 
 interface HealthData {
@@ -25,25 +27,57 @@ interface HealthData {
   details?: {
     configured: boolean;
     driver: string;
+    urlConfigured?: boolean;
+    tablesInitialized?: boolean;
+    errorName?: string;
+    errorCode?: string;
+    recommendation?: string;
   };
 }
 
 export default function HealthPage() {
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [initializingTables, setInitializingTables] = useState(false);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const fetchHealth = async () => {
     setLoading(true);
-    setError(null);
+    setActionMessage(null);
     try {
       const res = await fetch("/api/health", { cache: "no-store" });
       const data = await res.json();
       setHealth(data);
     } catch (err: any) {
-      setError(err?.message || "Failed to reach health endpoint.");
+      setHealth({
+        status: "error",
+        mode: "unreachable",
+        message: err?.message || "Failed to contact /api/health endpoint.",
+        latencyMs: 0,
+        totalRegistrations: 0,
+        timestamp: new Date().toISOString(),
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInitTables = async () => {
+    setInitializingTables(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch("/api/health", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setActionMessage("Tables created successfully! Refreshing status...");
+        fetchHealth();
+      } else {
+        setActionMessage(data.error || "Failed to auto-create tables.");
+      }
+    } catch (err: any) {
+      setActionMessage("Error sending table initialization request.");
+    } finally {
+      setInitializingTables(false);
     }
   };
 
@@ -57,7 +91,7 @@ export default function HealthPage() {
       return (
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-xs font-semibold">
           <CheckCircle2 className="w-4 h-4" />
-          <span>Operational &amp; Connected</span>
+          <span>PostgreSQL Active</span>
         </div>
       );
     }
@@ -65,25 +99,25 @@ export default function HealthPage() {
       return (
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs font-semibold">
           <AlertTriangle className="w-4 h-4" />
-          <span>Fallback Memory Mode</span>
+          <span>Active (Memory Fallback)</span>
         </div>
       );
     }
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-950/60 border border-red-500/40 text-red-300 text-xs font-semibold">
         <XCircle className="w-4 h-4" />
-        <span>Database Disconnected</span>
+        <span>Database Unreachable</span>
       </div>
     );
   };
 
   return (
     <div className="min-h-screen bg-[#090a0f] text-zinc-100 py-10 px-4 sm:px-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Back Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to CATALYST 2026 Home</span>
@@ -95,10 +129,10 @@ export default function HealthPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6 mb-6">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-1">
-                System Diagnostics
+                Real-Time Diagnostics
               </span>
               <h1 className="text-2xl sm:text-3xl font-bold text-white">
-                Database Health
+                Database Health Check
               </h1>
             </div>
 
@@ -117,15 +151,29 @@ export default function HealthPage() {
 
           {/* Diagnostic Message */}
           {health && (
-            <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 mb-6 text-xs leading-relaxed text-zinc-300">
-              <span className="font-semibold text-white block mb-0.5">Status Summary</span>
-              {health.message}
+            <div
+              className={`p-4 rounded-xl border mb-6 text-xs leading-relaxed ${
+                health.status === "healthy"
+                  ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-200"
+                  : health.status === "degraded"
+                  ? "bg-amber-950/20 border-amber-500/30 text-amber-200"
+                  : "bg-red-950/30 border-red-500/30 text-red-200"
+              }`}
+            >
+              <span className="font-semibold block mb-0.5">Status Summary:</span>
+              <p>{health.message}</p>
+              {health.details?.recommendation && (
+                <div className="mt-2 pt-2 border-t border-current/20 font-medium">
+                  <strong>Recommendation: </strong>
+                  {health.details.recommendation}
+                </div>
+              )}
             </div>
           )}
 
-          {error && (
-            <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/40 mb-6 text-xs text-red-300">
-              {error}
+          {actionMessage && (
+            <div className="p-3.5 rounded-xl bg-zinc-800 border border-zinc-700 mb-6 text-xs text-white">
+              {actionMessage}
             </div>
           )}
 
@@ -137,7 +185,7 @@ export default function HealthPage() {
                 <span className="uppercase tracking-wider font-semibold">Active Storage Driver</span>
               </div>
               <span className="text-lg font-bold text-white block capitalize">
-                {health?.mode || "Detecting..."}
+                {health?.mode?.replace("_", " ") || "Detecting..."}
               </span>
               <span className="text-[11px] text-zinc-500">
                 {health?.mode === "postgresql"
@@ -180,7 +228,42 @@ export default function HealthPage() {
             </div>
           </div>
 
-          {/* Quick Actions & Admin link */}
+          {/* Troubleshooting Guide Box if not healthy */}
+          {health && health.status !== "healthy" && (
+            <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 mb-6 text-xs space-y-3">
+              <div className="flex items-center gap-2 text-white font-semibold">
+                <HelpCircle className="w-4 h-4 text-emerald-400" />
+                <span>Why is the database unreachable or degraded?</span>
+              </div>
+
+              <div className="space-y-2 text-zinc-400 leading-relaxed">
+                <div>
+                  <strong className="text-zinc-200">1. Vercel Postgres not yet linked:</strong>
+                  <p className="text-[11px]">
+                    If deployed on Vercel, go to your project in the Vercel Dashboard → click <strong>Storage</strong> → click <strong>Create Database</strong> → choose <strong>Postgres</strong> → click <strong>Connect to Project</strong>.
+                  </p>
+                </div>
+
+                <div>
+                  <strong className="text-zinc-200">2. Missing Table in Database:</strong>
+                  <p className="text-[11px]">
+                    If Postgres is already connected, click the button below to initialize the <code className="text-zinc-200">Registration</code> table.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleInitTables}
+                disabled={initializingTables}
+                className="w-full py-2.5 rounded-lg font-semibold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <Wrench className={`w-3.5 h-3.5 ${initializingTables ? "animate-spin" : ""}`} />
+                <span>{initializingTables ? "Creating Tables..." : "Initialize Database Tables (1-Click)"}</span>
+              </button>
+            </div>
+          )}
+
+          {/* Actions Bar */}
           <div className="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <Link
               href="/admin"

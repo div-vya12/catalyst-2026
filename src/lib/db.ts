@@ -5,10 +5,28 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Support Vercel Postgres, Neon, Supabase, and custom PostgreSQL connection strings
+export const getDatabaseUrl = () => {
+  return (
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    ""
+  );
+};
+
+const activeUrl = getDatabaseUrl();
+
 export const prisma =
   globalForPrisma.prisma ??
-  (process.env.DATABASE_URL
+  (activeUrl
     ? new PrismaClient({
+        datasources: {
+          db: {
+            url: activeUrl,
+          },
+        },
         log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
       })
     : undefined);
@@ -36,11 +54,60 @@ export interface RegistrationInput {
 const memoryStore: (RegistrationInput & { id: string; createdAt: string; updatedAt: string })[] = [];
 
 /**
+ * Automatically create the Registration table if it does not exist yet
+ */
+export async function ensureDatabaseTables() {
+  if (!prisma || !getDatabaseUrl()) return false;
+
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "Registration" (
+        "id" TEXT NOT NULL,
+        "ticketId" TEXT NOT NULL,
+        "fullName" TEXT NOT NULL,
+        "email" TEXT NOT NULL,
+        "phone" TEXT NOT NULL,
+        "college" TEXT NOT NULL,
+        "yearOfStudy" TEXT NOT NULL,
+        "delegateType" TEXT NOT NULL,
+        "selectedEvents" TEXT[] NOT NULL DEFAULT '{}',
+        "amountPayable" INTEGER NOT NULL DEFAULT 0,
+        "currency" TEXT NOT NULL DEFAULT 'INR',
+        "status" TEXT NOT NULL DEFAULT 'CONFIRMED',
+        "paymentId" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "Registration_pkey" PRIMARY KEY ("id")
+      );
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "Registration_ticketId_key" ON "Registration"("ticketId");
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Registration_email_idx" ON "Registration"("email");
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Registration_phone_idx" ON "Registration"("phone");
+    `);
+
+    return true;
+  } catch (err) {
+    console.error("[Database Auto-Init Error]:", err);
+    return false;
+  }
+}
+
+/**
  * Persist registration record to Database (Prisma / PostgreSQL)
  * Automatically falls back to in-memory store if DATABASE_URL is not yet set
  */
 export async function saveRegistration(input: RegistrationInput) {
-  if (prisma && process.env.DATABASE_URL) {
+  const url = getDatabaseUrl();
+
+  if (prisma && url) {
     try {
       const created = await prisma.registration.create({
         data: {
@@ -59,8 +126,36 @@ export async function saveRegistration(input: RegistrationInput) {
         },
       });
       return { record: created, source: "database" };
-    } catch (error) {
+    } catch (error: any) {
       console.error("[Database Error] Failed to save via Prisma:", error);
+
+      // If table doesn't exist, auto-create and retry once
+      if (error?.code === "P2021" || error?.message?.includes("does not exist")) {
+        const initialized = await ensureDatabaseTables();
+        if (initialized) {
+          try {
+            const retried = await prisma.registration.create({
+              data: {
+                ticketId: input.ticketId,
+                fullName: input.fullName,
+                email: input.email.toLowerCase().trim(),
+                phone: input.phone.trim(),
+                college: input.college.trim(),
+                yearOfStudy: input.yearOfStudy,
+                delegateType: input.delegateType,
+                selectedEvents: input.selectedEvents,
+                amountPayable: input.amountPayable,
+                currency: input.currency || "INR",
+                status: input.status || (input.amountPayable === 0 ? "CONFIRMED" : "PENDING_PAYMENT"),
+                paymentId: input.paymentId,
+              },
+            });
+            return { record: retried, source: "database" };
+          } catch (retryErr) {
+            console.error("[Database Retry Error]:", retryErr);
+          }
+        }
+      }
     }
   }
 
@@ -83,8 +178,9 @@ export async function saveRegistration(input: RegistrationInput) {
 export async function findRegistration(query: string) {
   const cleanQuery = query.trim();
   const lowerQuery = cleanQuery.toLowerCase();
+  const url = getDatabaseUrl();
 
-  if (prisma && process.env.DATABASE_URL) {
+  if (prisma && url) {
     try {
       const found = await prisma.registration.findFirst({
         where: {
@@ -117,7 +213,9 @@ export async function findRegistration(query: string) {
  * Retrieve all registrations (for Admin Dashboard)
  */
 export async function getAllRegistrations() {
-  if (prisma && process.env.DATABASE_URL) {
+  const url = getDatabaseUrl();
+
+  if (prisma && url) {
     try {
       const records = await prisma.registration.findMany({
         orderBy: { createdAt: "desc" },
@@ -135,7 +233,9 @@ export async function getAllRegistrations() {
  * Delete a registration (for Admin)
  */
 export async function deleteRegistration(ticketId: string) {
-  if (prisma && process.env.DATABASE_URL) {
+  const url = getDatabaseUrl();
+
+  if (prisma && url) {
     try {
       const deleted = await prisma.registration.deleteMany({
         where: { ticketId },
@@ -155,45 +255,75 @@ export async function deleteRegistration(ticketId: string) {
 }
 
 /**
- * Comprehensive Database Health Check
+ * Comprehensive Database Health Check with Detailed Diagnostics
  */
 export async function checkDatabaseHealth() {
   const start = performance.now();
   const timestamp = new Date().toISOString();
+  const url = getDatabaseUrl();
 
-  if (!process.env.DATABASE_URL) {
+  // 1. Check if database connection string is configured
+  if (!url) {
     return {
       status: "degraded",
       mode: "memory_fallback",
-      message: "DATABASE_URL environment variable is not configured. Using active in-memory cache.",
+      message:
+        "No database connection string configured. Set DATABASE_URL or POSTGRES_PRISMA_URL in Vercel environment variables.",
       latencyMs: 0,
       totalRegistrations: memoryStore.length,
       timestamp,
       details: {
         configured: false,
         driver: "memory",
+        recommendation: "Attach Vercel Postgres in Vercel Dashboard -> Storage -> Postgres.",
       },
     };
   }
 
+  // 2. Check if client initialized
   if (!prisma) {
     return {
       status: "error",
       mode: "disconnected",
-      message: "Prisma client failed to initialize with provided DATABASE_URL.",
+      message: "Prisma client failed to initialize with provided connection string.",
       latencyMs: 0,
       totalRegistrations: 0,
       timestamp,
       details: {
         configured: true,
         driver: "postgresql",
+        recommendation: "Verify that DATABASE_URL is a valid PostgreSQL connection string.",
       },
     };
   }
 
+  // 3. Test basic connection
+  let connectionVerified = false;
   try {
-    // Run lightweight query
     await prisma.$queryRaw`SELECT 1`;
+    connectionVerified = true;
+  } catch (connError: any) {
+    const latencyMs = Math.round(performance.now() - start);
+    return {
+      status: "error",
+      mode: "connection_failed",
+      message: `Database server connection failed: ${connError?.message || "Connection refused or timed out"}`,
+      latencyMs,
+      totalRegistrations: 0,
+      timestamp,
+      details: {
+        configured: true,
+        driver: "postgresql",
+        errorName: connError?.name,
+        errorCode: connError?.code,
+        recommendation:
+          "Check that your PostgreSQL database is running and reachable. For Vercel Postgres, ensure '?sslmode=require' is attached to the connection string.",
+      },
+    };
+  }
+
+  // 4. Test table existence & auto-initialize if needed
+  try {
     const count = await prisma.registration.count();
     const latencyMs = Math.round(performance.now() - start);
 
@@ -208,21 +338,54 @@ export async function checkDatabaseHealth() {
         configured: true,
         driver: "postgresql",
         urlConfigured: true,
+        tablesInitialized: true,
       },
     };
-  } catch (error: any) {
+  } catch (tableError: any) {
+    // If the table doesn't exist (P2021), attempt automated self-healing creation!
+    console.warn("[Health Check] Registration table missing. Attempting auto-initialization...");
+    const initialized = await ensureDatabaseTables();
+
+    if (initialized) {
+      try {
+        const count = await prisma.registration.count();
+        const latencyMs = Math.round(performance.now() - start);
+        return {
+          status: "healthy",
+          mode: "postgresql",
+          message: "PostgreSQL connected and Registration table automatically created and verified!",
+          latencyMs,
+          totalRegistrations: count,
+          timestamp,
+          details: {
+            configured: true,
+            driver: "postgresql",
+            tablesInitialized: true,
+            autoRepaired: true,
+          },
+        };
+      } catch (countErr) {
+        // Continue to reporting
+      }
+    }
+
     const latencyMs = Math.round(performance.now() - start);
     return {
-      status: "error",
-      mode: "postgresql_unreachable",
-      message: error?.message || "Failed to execute database query.",
+      status: "degraded",
+      mode: "table_missing",
+      message:
+        "Database is reachable and responding, but the 'Registration' table has not been created yet.",
       latencyMs,
       totalRegistrations: 0,
       timestamp,
       details: {
         configured: true,
         driver: "postgresql",
-        errorName: error?.name,
+        connectionVerified: true,
+        errorName: tableError?.name,
+        errorCode: tableError?.code,
+        recommendation:
+          "Click the 'Initialize Tables' button on this page, or run 'npx prisma db push' in your terminal.",
       },
     };
   }
