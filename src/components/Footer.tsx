@@ -111,6 +111,16 @@ export const Footer: React.FC = () => {
                   Accommodation Form
                 </a>
               </li>
+              <li className="pt-2 border-t border-zinc-850">
+                <Link href="/health" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+                  Database Health Check
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+                  Super Admin Console
+                </Link>
+              </li>
             </ul>
           </div>
 
