@@ -27,6 +27,8 @@ interface HealthData {
   details?: {
     configured: boolean;
     driver: string;
+    detectedVariable?: string;
+    connectionTarget?: string;
     urlConfigured?: boolean;
     tablesInitialized?: boolean;
     errorName?: string;
@@ -187,8 +189,10 @@ export default function HealthPage() {
               <span className="text-lg font-bold text-white block capitalize">
                 {health?.mode?.replace("_", " ") || "Detecting..."}
               </span>
-              <span className="text-[11px] text-zinc-500">
-                {health?.mode === "postgresql"
+              <span className="text-[11px] text-zinc-500 block truncate">
+                {health?.details?.detectedVariable
+                  ? `Config: ${health.details.detectedVariable}`
+                  : health?.mode === "postgresql"
                   ? "Connected to remote PostgreSQL instance"
                   : "Local memory cache active"}
               </span>
