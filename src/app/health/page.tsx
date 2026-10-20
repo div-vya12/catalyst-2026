@@ -33,6 +33,8 @@ interface HealthData {
     tablesInitialized?: boolean;
     errorName?: string;
     errorCode?: string;
+    initError?: string;
+    initStep?: string;
     recommendation?: string;
   };
 }
@@ -74,10 +76,10 @@ export default function HealthPage() {
         setActionMessage("Tables created successfully! Refreshing status...");
         fetchHealth();
       } else {
-        setActionMessage(data.error || "Failed to auto-create tables.");
+        setActionMessage(data.error || data.message || "Failed to auto-create tables.");
       }
     } catch (err: any) {
-      setActionMessage("Error sending table initialization request.");
+      setActionMessage("Error sending table initialization request: " + (err?.message || ""));
     } finally {
       setInitializingTables(false);
     }
@@ -168,6 +170,12 @@ export default function HealthPage() {
                 <div className="mt-2 pt-2 border-t border-current/20 font-medium">
                   <strong>Recommendation: </strong>
                   {health.details.recommendation}
+                </div>
+              )}
+              {health.details?.initError && (
+                <div className="mt-2 pt-2 border-t border-current/20 text-red-300 font-mono text-[11px] break-words">
+                  <strong>Database Error ({health.details.initStep || "Init"}): </strong>
+                  {health.details.initError}
                 </div>
               )}
             </div>

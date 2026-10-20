@@ -12,18 +12,20 @@ export async function GET() {
 
 export async function POST() {
   try {
-    const success = await ensureDatabaseTables();
+    const result = await ensureDatabaseTables();
     const updatedHealth = await checkDatabaseHealth();
 
     return NextResponse.json(
       {
-        success,
-        message: success
+        success: result.success,
+        error: result.error,
+        step: result.step,
+        message: result.success
           ? "Database tables successfully initialized."
-          : "Failed to initialize database tables.",
+          : `Failed to initialize database tables: ${result.error || "Unknown error"}`,
         health: updatedHealth,
       },
-      { status: success ? 200 : 500 }
+      { status: result.success ? 200 : 500 }
     );
   } catch (error: any) {
     return NextResponse.json(

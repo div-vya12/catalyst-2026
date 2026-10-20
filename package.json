@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "./node_modules/.bin/prisma generate && next build",
+    "build": "./node_modules/.bin/prisma generate && node scripts/init-db.mjs && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "./node_modules/.bin/prisma generate",
+    "db:init": "node scripts/init-db.mjs",
     "db:push": "./node_modules/.bin/prisma db push"
   },
   "dependencies": {

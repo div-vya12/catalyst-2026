@@ -138,10 +138,13 @@ const memoryStore: (RegistrationInput & { id: string; createdAt: string; updated
 /**
  * Automatically create the Registration table if it does not exist yet
  */
-export async function ensureDatabaseTables() {
+export async function ensureDatabaseTables(): Promise<{ success: boolean; error?: string; step?: string }> {
   const client = getPrismaClient();
-  if (!client) return false;
+  if (!client) {
+    return { success: false, error: "Prisma client could not be initialized. No database URL configured." };
+  }
 
+  // 1. Create main table (single SQL command without semicolon so Postgres extended query protocol succeeds)
   try {
     await client.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Registration" (
@@ -162,28 +165,50 @@ export async function ensureDatabaseTables() {
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Registration_pkey" PRIMARY KEY ("id")
-      );
-
-      ALTER TABLE "Registration" ADD COLUMN IF NOT EXISTS "collegeIdUrl" TEXT;
+      )
     `);
-
-    await client.$executeRawUnsafe(`
-      CREATE UNIQUE INDEX IF NOT EXISTS "Registration_ticketId_key" ON "Registration"("ticketId");
-    `);
-
-    await client.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS "Registration_email_idx" ON "Registration"("email");
-    `);
-
-    await client.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS "Registration_phone_idx" ON "Registration"("phone");
-    `);
-
-    return true;
-  } catch (err) {
-    console.error("[Database Auto-Init Error]:", err);
-    return false;
+  } catch (err: any) {
+    console.error("[Database Auto-Init Error - Create Table]:", err);
+    return { success: false, step: "CREATE TABLE", error: err?.message || String(err) };
   }
+
+  // 2. Ensure collegeIdUrl column is present for backward compatibility
+  try {
+    await client.$executeRawUnsafe(`
+      ALTER TABLE "Registration" ADD COLUMN IF NOT EXISTS "collegeIdUrl" TEXT
+    `);
+  } catch (err: any) {
+    console.warn("[Database Auto-Init Warning - Column]:", err?.message);
+  }
+
+  // 3. Unique index on ticketId
+  try {
+    await client.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "Registration_ticketId_key" ON "Registration"("ticketId")
+    `);
+  } catch (err: any) {
+    console.warn("[Database Auto-Init Warning - ticketId Index]:", err?.message);
+  }
+
+  // 4. Index on email
+  try {
+    await client.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Registration_email_idx" ON "Registration"("email")
+    `);
+  } catch (err: any) {
+    console.warn("[Database Auto-Init Warning - email Index]:", err?.message);
+  }
+
+  // 5. Index on phone
+  try {
+    await client.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Registration_phone_idx" ON "Registration"("phone")
+    `);
+  } catch (err: any) {
+    console.warn("[Database Auto-Init Warning - phone Index]:", err?.message);
+  }
+
+  return { success: true };
 }
 
 /**
@@ -218,7 +243,7 @@ export async function saveRegistration(input: RegistrationInput) {
       // If table doesn't exist, auto-create and retry once
       if (error?.code === "P2021" || error?.message?.includes("does not exist")) {
         const initialized = await ensureDatabaseTables();
-        if (initialized) {
+        if (initialized.success) {
           try {
             const retried = await client.registration.create({
               data: {
@@ -438,7 +463,7 @@ export async function checkDatabaseHealth() {
     console.warn("[Health Check] Registration table missing. Attempting auto-initialization...");
     const initialized = await ensureDatabaseTables();
 
-    if (initialized) {
+    if (initialized.success) {
       try {
         const count = await client.registration.count();
         const latencyMs = Math.round(performance.now() - start);
@@ -467,7 +492,9 @@ export async function checkDatabaseHealth() {
     return {
       status: "degraded",
       mode: "table_missing",
-      message: `Database is connected via ${variableName}, but the 'Registration' table has not been created yet.`,
+      message: `Database is connected via ${variableName}, but the 'Registration' table has not been created yet.${
+        initialized.error ? ` Details: ${initialized.error}` : ""
+      }`,
       latencyMs,
       totalRegistrations: 0,
       timestamp,
@@ -478,6 +505,8 @@ export async function checkDatabaseHealth() {
         connectionTarget: maskedUrl,
         errorName: tableError?.name,
         errorCode: tableError?.code,
+        initError: initialized.error,
+        initStep: initialized.step,
         recommendation: "Click 'Initialize Database Tables (1-Click)' on this page to create the table automatically.",
       },
     };
