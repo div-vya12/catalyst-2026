@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { conferenceData } from "@/data/conferenceData";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,35 +8,26 @@ const inter = Inter({
   display: "swap",
 });
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "CATALYST 2025 | Maulana Azad Medical College (MAMC), New Delhi",
+  title: "CATALYST 2026 | Maulana Azad Medical College (MAMC), New Delhi",
   description:
-    "Annual Undergraduate Academic Conference at MAMC featuring 8 hands-on clinical workshops, academic competitions, and MAFIA business events for MBBS students across India. Learn. Practice. Innovate.",
+    "Annual Undergraduate Academic Conference at MAMC New Delhi (18th – 20th November 2026). 8 clinical simulation workshops, academic competitions, and healthcare innovation events for MBBS students across India.",
   keywords: [
-    "CATALYST 2025",
+    "CATALYST 2026",
     "MAMC",
     "Maulana Azad Medical College",
-    "Medical Conference",
+    "Medical Conference 2026",
     "MBBS",
-    "Workshops",
+    "Clinical Workshops",
     "MASS",
     "MAFIA",
-    "Surgical Skills",
-    "Anaesthesia",
-    "Hackathon",
   ],
   authors: [{ name: "Scientific Society of MAMC (MASS) & MAFIA" }],
   openGraph: {
-    title: "CATALYST 2025 - Annual Undergraduate Academic Conference | MAMC New Delhi",
+    title: "CATALYST 2026 - Annual Undergraduate Academic Conference | MAMC New Delhi",
     description:
-      "Learn. Practice. Innovate. MAMC's annual conference with hands-on clinical workshops, research presentations, and business challenges.",
-    siteName: "CATALYST 2025",
+      "Learn. Practice. Innovate. MAMC's annual national conference featuring clinical workshops, research presentations, and business challenges (18th – 20th November 2026).",
+    siteName: "CATALYST 2026",
     locale: "en_US",
     type: "website",
   },
@@ -49,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} scroll-smooth`}>
-      <body className="antialiased font-sans bg-[#03060c] text-slate-100 min-h-screen">
+    <html lang="en" className={`${inter.variable} scroll-smooth`}>
+      <body className="antialiased font-sans bg-[#090a0f] text-zinc-100 min-h-screen">
         {children}
       </body>
     </html>

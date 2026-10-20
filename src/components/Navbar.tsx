@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, Calendar, MessageCircle, Sparkles, Phone, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { Menu, X, ChevronRight } from "lucide-react";
 import { conferenceData } from "@/data/conferenceData";
 
 interface NavbarProps {
-  onOpenRegister: () => void;
+  onOpenCheckRegistration?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenCheckRegistration }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 15);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -22,93 +23,88 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
 
   const navLinks = [
     { label: "Overview", href: "#overview" },
-    { label: "Workshops (8)", href: "#workshops" },
+    { label: "Workshops", href: "#workshops" },
     { label: "Competitions", href: "#academic" },
     { label: "MAFIA Events", href: "#mafia" },
     { label: "Schedule", href: "#schedule" },
     { label: "Accommodation", href: "#accommodation" },
-    { label: "Contacts", href: "#contacts" },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
         isScrolled
-          ? "bg-[#060e1d]/90 backdrop-blur-md border-b border-cyan-500/20 py-3 shadow-lg shadow-black/40"
-          : "bg-transparent py-5"
+          ? "bg-[#090a0f]/90 backdrop-blur-md border-b border-zinc-800/80 py-3"
+          : "bg-transparent py-4 sm:py-5"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between">
           {/* Brand */}
-          <a href="#" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-[1px] flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#071326] rounded-xl flex items-center justify-center text-cyan-400 font-bold text-lg">
-                C
-              </div>
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-sm text-white">
+              C
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-black tracking-wider text-xl text-white group-hover:text-cyan-400 transition-colors">
-                  CATALYST <span className="text-cyan-400">2025</span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-sm sm:text-base text-white tracking-tight">
+                  CATALYST 2026
                 </span>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-500/30">
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 font-medium">
                   MAMC
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 tracking-wide hidden sm:block">
+              <p className="text-[11px] text-zinc-400 hidden sm:block">
                 Maulana Azad Medical College, New Delhi
               </p>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1 bg-[#0b1b36]/60 p-1.5 rounded-full border border-slate-700/50 backdrop-blur-sm">
+          <nav className="hidden md:flex items-center gap-1 text-xs text-zinc-300">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full transition-all"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-zinc-850 transition-colors"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          {/* Actions */}
-          <div className="hidden sm:flex items-center gap-3">
-            <a
-              href={conferenceData.conference.announcement_group_whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 hover:bg-emerald-900/40 hover:border-emerald-400 transition-all"
+          {/* Primary Action */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {onOpenCheckRegistration && (
+              <button
+                onClick={onOpenCheckRegistration}
+                className="px-3 py-1.5 rounded-lg text-xs text-zinc-300 hover:text-white transition-colors"
+              >
+                Check Registration
+              </button>
+            )}
+            <Link
+              href="/register"
+              className="px-4 py-2 rounded-lg text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-colors active:scale-95"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>WhatsApp Group</span>
-            </a>
-            <button
-              onClick={onOpenRegister}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-black bg-gradient-to-r from-cyan-400 to-blue-400 hover:from-cyan-300 hover:to-blue-300 shadow-md shadow-cyan-500/30 hover:shadow-cyan-400/50 transition-all active:scale-95"
-            >
-              <Sparkles className="w-3.5 h-3.5 fill-black" />
-              <span>Register Now</span>
-            </button>
+              Register
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
           <div className="flex sm:hidden items-center gap-2">
-            <button
-              onClick={onOpenRegister}
-              className="px-3 py-1.5 rounded-full text-xs font-bold text-black bg-cyan-400"
+            <Link
+              href="/register"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-black"
             >
               Register
-            </button>
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-800/80 text-slate-300 hover:text-white"
+              className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -116,39 +112,38 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-[#071328]/95 backdrop-blur-xl border-b border-cyan-500/20 px-4 py-5 animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col gap-2">
+        <div className="sm:hidden bg-[#0e1017] border-b border-zinc-800 px-4 py-4 animate-in slide-in-from-top-2 duration-150">
+          <div className="flex flex-col gap-1 text-xs">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all"
+                className="flex items-center justify-between py-2 px-3 rounded-lg text-zinc-300 hover:bg-zinc-800/80 hover:text-white"
               >
                 <span>{link.label}</span>
-                <ChevronRight className="w-4 h-4 text-slate-500" />
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-500" />
               </a>
             ))}
-            <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
-              <a
-                href={conferenceData.conference.announcement_group_whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30"
+            <div className="pt-2 mt-2 border-t border-zinc-800 flex flex-col gap-2">
+              {onOpenCheckRegistration && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenCheckRegistration();
+                  }}
+                  className="w-full text-left py-2 px-3 rounded-lg text-xs text-zinc-300 hover:bg-zinc-800/80"
+                >
+                  Check Existing Registration
+                </button>
+              )}
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 rounded-lg font-semibold bg-white text-black text-xs"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>Join Official WhatsApp Group</span>
-              </a>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenRegister();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-black bg-gradient-to-r from-cyan-400 to-blue-400"
-              >
-                <Sparkles className="w-4 h-4 fill-black" />
-                <span>Open Registration Portal</span>
-              </button>
+                Register Now
+              </Link>
             </div>
           </div>
         </div>

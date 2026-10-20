@@ -2,6 +2,7 @@ export interface Organizer {
   name: string;
   short_name: string;
   instagram: string;
+  linkedin?: string;
 }
 
 export interface ContactPerson {
@@ -22,12 +23,13 @@ export interface ConferenceInfo {
   start_date: string;
   end_date: string;
   display_dates: string;
-  quote: Quote;
+  quote?: Quote;
   tagline: string;
   description: string;
   eligibility_general: string;
   organizers: Organizer[];
   announcement_group_whatsapp: string;
+  institution_linkedin: string;
   general_contacts: {
     MASS: ContactPerson[];
     MAFIA: ContactPerson[];

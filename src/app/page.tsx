@@ -9,22 +9,21 @@ import { AcademicEventsSection } from "@/components/AcademicEventsSection";
 import { MafiaSection } from "@/components/MafiaSection";
 import { ScheduleSection } from "@/components/ScheduleSection";
 import { AccommodationSection } from "@/components/AccommodationSection";
-import { OrganizersSection } from "@/components/OrganizersSection";
 import { Footer } from "@/components/Footer";
-import { RegisterModal } from "@/components/RegisterModal";
+import { CheckRegistrationModal } from "@/components/CheckRegistrationModal";
 
 export default function Home() {
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isCheckRegOpen, setIsCheckRegOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-[#03060c] text-slate-100 selection:bg-cyan-500 selection:text-black">
-      {/* Navigation Header */}
-      <Navbar onOpenRegister={() => setIsRegisterOpen(true)} />
+    <main className="min-h-screen bg-[#090a0f] text-zinc-100 selection:bg-white selection:text-black">
+      {/* Navbar with minimal design and primary Register link */}
+      <Navbar onOpenCheckRegistration={() => setIsCheckRegOpen(true)} />
 
-      {/* Hero Section */}
-      <Hero onOpenRegister={() => setIsRegisterOpen(true)} />
+      {/* Hero with interactive touch/cursor canvas, clean card, and 3 landing options */}
+      <Hero onOpenCheckRegistration={() => setIsCheckRegOpen(true)} />
 
-      {/* Late Breaking Academic Update Banner */}
+      {/* Minimal Policy Update Banner */}
       <LateUpdateBanner />
 
       {/* 8 Clinical Workshops */}
@@ -33,25 +32,22 @@ export default function Home() {
       {/* Academic Competitions (MASS) */}
       <AcademicEventsSection />
 
-      {/* MAFIA Business & Innovation Events */}
+      {/* MAFIA Business Events */}
       <MafiaSection />
 
-      {/* Master 3-Day Schedule */}
+      {/* Conference Schedule (18th – 20th November 2026) */}
       <ScheduleSection />
 
-      {/* Accommodation Information */}
+      {/* Campus Accommodation */}
       <AccommodationSection />
 
-      {/* Organizing Societies & Leadership */}
-      <OrganizersSection />
-
-      {/* Footer */}
+      {/* Minimal Footer with WhatsApp broadcast, Instagram handles, and MAMC LinkedIn */}
       <Footer />
 
-      {/* Interactive Registration & Payment Preview Modal */}
-      <RegisterModal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
+      {/* Check Existing Registration Lookup Modal */}
+      <CheckRegistrationModal
+        isOpen={isCheckRegOpen}
+        onClose={() => setIsCheckRegOpen(false)}
       />
     </main>
   );

@@ -3,87 +3,47 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 240, 246, 252;
-  --background-start-rgb: 8, 15, 30;
-  --background-end-rgb: 4, 8, 16;
+  --background: #090a0f;
+  --foreground: #f4f4f5;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: radial-gradient(circle at 50% 0%, #0d1e3a 0%, #060b14 70%, #03060a 100%);
+  color: var(--foreground);
+  background-color: var(--background);
   min-height: 100vh;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
-/* Custom modern scrollbar */
+/* Minimal card */
+.minimal-card {
+  background-color: rgba(18, 20, 29, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.minimal-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080f1e;
+  background: #090a0f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e3a5f;
-  border-radius: 4px;
+  background: #27272a;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
-}
-
-/* Medical ECG pulse animation */
-@keyframes ecgGlow {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.03);
-  }
-}
-
-.animate-ecg {
-  animation: ecgGlow 3s ease-in-out infinite;
-}
-
-/* Glassmorphism Card Style */
-.glass-card {
-  background: rgba(13, 27, 49, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-.glass-card:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-}
-
-.glass-card-interactive {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card-interactive:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0, 240, 255, 0.5);
-  box-shadow: 0 16px 40px -10px rgba(0, 240, 255, 0.2);
-}
-
-/* Medical Neon Border */
-.neon-glow {
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
-}
-
-.neon-border {
-  box-shadow: 0 0 25px -5px rgba(0, 240, 255, 0.3);
-}
-
-/* Background grid effect */
-.bg-medical-grid {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background: #3f3f46;
 }

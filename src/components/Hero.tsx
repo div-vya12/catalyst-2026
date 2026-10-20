@@ -1,29 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Calendar,
   MapPin,
   Clock,
-  Sparkles,
   ArrowRight,
-  MessageCircle,
-  Stethoscope,
-  Award,
-  TrendingUp,
-  ShieldCheck,
-  Flame,
+  Search,
+  Compass,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { conferenceData } from "@/data/conferenceData";
+import { InteractiveCanvas } from "./InteractiveCanvas";
 
 interface HeroProps {
-  onOpenRegister: () => void;
+  onOpenCheckRegistration: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenRegister }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenCheckRegistration }) => {
   const { conference } = conferenceData;
 
-  // Countdown timer state
+  // Countdown timer state targeting 18th November 2026
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -46,7 +45,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenRegister }) => {
           seconds: Math.floor((difference % (1000 * 60)) / 1000),
         });
       } else {
-        // Fallback display if event date has passed
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
@@ -57,162 +55,128 @@ export const Hero: React.FC<HeroProps> = ({ onOpenRegister }) => {
   }, [conference.start_date]);
 
   return (
-    <section id="overview" className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-medical-grid">
-      {/* Background radial glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <section id="overview" className="relative min-h-[90vh] flex items-center pt-24 pb-16 sm:pt-28 sm:pb-20 overflow-hidden bg-[#090a0f]">
+      {/* Interactive touch/cursor reactive canvas */}
+      <InteractiveCanvas />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-medium mb-6 shadow-sm shadow-cyan-950">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>{conference.type}</span>
-            <span className="text-slate-500">•</span>
-            <span className="text-slate-300">{conference.institution}</span>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 w-full">
+        {/* Clean, Informative Hero Card */}
+        <div className="minimal-card rounded-2xl p-6 sm:p-10 text-left border border-zinc-800 shadow-2xl">
+          {/* Header pill */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-zinc-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              {conference.type}
+            </span>
+            <span className="text-xs text-zinc-400">
+              {conference.institution}
+            </span>
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-heading tracking-tight mb-4">
-            <span className="bg-gradient-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
-              {conference.name}
-            </span>
+          {/* Title */}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-2 font-heading">
+            {conference.name}
           </h1>
 
           {/* Tagline */}
-          <p className="text-xl sm:text-2xl font-bold text-cyan-400/90 tracking-wide uppercase mb-6 font-heading">
+          <p className="text-xs sm:text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-4">
             {conference.tagline}
           </p>
 
-          {/* Hippocrates Quote */}
-          <div className="relative max-w-2xl mx-auto mb-8 p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-sm">
-            <p className="text-sm sm:text-base italic text-slate-300 font-light">
-              &ldquo;{conference.quote.text}&rdquo;
-            </p>
-            <p className="text-xs text-cyan-400/80 font-medium mt-1">
-              — {conference.quote.author}
-            </p>
-          </div>
-
-          {/* Description */}
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
+          {/* Clean Description */}
+          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-6 max-w-2xl">
             {conference.description}
           </p>
 
-          {/* Key metadata pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-slate-300 mb-10">
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-slate-800">
-              <Calendar className="w-4 h-4 text-cyan-400" />
-              <span className="font-semibold text-white">{conference.display_dates}</span>
+          {/* Conference Details Pills */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-8 text-xs text-zinc-300">
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800/80">
+              <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase block">Dates</span>
+                <span className="font-semibold text-white">{conference.display_dates}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-slate-800">
-              <MapPin className="w-4 h-4 text-emerald-400" />
-              <span>{conference.institution}, {conference.city}</span>
+
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800/80">
+              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase block">Venue</span>
+                <span className="font-semibold text-white">MAMC Campus, New Delhi</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-slate-800">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span>MBBS 1st Year to Interns</span>
+
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800/80">
+              <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase block">Countdown</span>
+                <span className="font-semibold text-white font-mono">
+                  {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-            <button
-              onClick={onOpenRegister}
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-sm sm:text-base text-black bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-400 hover:from-cyan-300 hover:to-blue-300 shadow-xl shadow-cyan-500/25 hover:shadow-cyan-400/40 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 fill-black" />
-              <span>Register for CATALYST &apos;25</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <a
-              href="#workshops"
-              className="w-full sm:w-auto px-7 py-4 rounded-full font-semibold text-sm sm:text-base text-slate-200 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center justify-center gap-2"
-            >
-              <Stethoscope className="w-4 h-4 text-cyan-400" />
-              <span>Explore 8 Workshops</span>
-            </a>
-            <a
-              href={conference.announcement_group_whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-6 py-4 rounded-full font-semibold text-sm sm:text-base text-emerald-400 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/40 transition-all flex items-center justify-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Broadcast</span>
-            </a>
-          </div>
+          {/* 3 Prominent Landing Options */}
+          <div className="border-t border-zinc-800 pt-6">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+              Conference Access
+            </span>
 
-          {/* Countdown timer card */}
-          <div className="max-w-xl mx-auto glass-card rounded-2xl p-4 sm:p-6 mb-12">
-            <div className="flex items-center justify-center gap-2 text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-3">
-              <Clock className="w-3.5 h-3.5 animate-spin" />
-              <span>Event Commencement Countdown</span>
-            </div>
-            <div className="grid grid-cols-4 gap-2 sm:gap-4">
-              {[
-                { label: "Days", value: timeLeft.days },
-                { label: "Hours", value: timeLeft.hours },
-                { label: "Minutes", value: timeLeft.minutes },
-                { label: "Seconds", value: timeLeft.seconds },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#050e1d]/80 rounded-xl p-2.5 sm:p-3 border border-slate-800/80 text-center"
-                >
-                  <span className="block font-heading text-2xl sm:text-3xl font-black text-white">
-                    {String(item.value).padStart(2, "0")}
-                  </span>
-                  <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">
-                    {item.label}
-                  </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Option 1: Primary Action -> Register */}
+              <Link
+                href="/register"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-white text-black hover:bg-zinc-200 transition-all font-semibold text-xs sm:text-sm shadow-md active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 fill-black" />
+                  <span>Register Now</span>
                 </div>
-              ))}
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              {/* Option 2: Explore */}
+              <a
+                href="#workshops"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-900 border border-zinc-700/80 hover:border-zinc-500 text-zinc-200 transition-all font-semibold text-xs sm:text-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Compass className="w-4 h-4 text-zinc-400" />
+                  <span>Explore Events</span>
+                </div>
+                <span className="text-[10px] text-zinc-500 font-normal">8 Workshops</span>
+              </a>
+
+              {/* Option 3: Check Existing Registration */}
+              <button
+                type="button"
+                onClick={onOpenCheckRegistration}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-900 border border-zinc-700/80 hover:border-zinc-500 text-zinc-200 transition-all font-semibold text-xs sm:text-sm text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Search className="w-4 h-4 text-zinc-400" />
+                  <span>Check Registration</span>
+                </div>
+                <span className="text-[10px] text-zinc-500 font-normal">Lookup Pass</span>
+              </button>
             </div>
           </div>
 
-          {/* 4 Quick Stat Highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
-            <div className="glass-card rounded-2xl p-4 border-l-4 border-l-cyan-400">
-              <div className="flex items-center gap-2 text-cyan-400 mb-1">
-                <Stethoscope className="w-4 h-4" />
-                <span className="text-xl font-black text-white">8 Workshops</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Anaesthesia, Surgery, Eye, ECG, ObGyn, Ortho & Biochem
-              </p>
-            </div>
-
-            <div className="glass-card rounded-2xl p-4 border-l-4 border-l-blue-400">
-              <div className="flex items-center gap-2 text-blue-400 mb-1">
-                <Award className="w-4 h-4" />
-                <span className="text-xl font-black text-white">5 Competitions</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Case Files, Inquistador, Hackathon, MedVenture & RickThinking
-              </p>
-            </div>
-
-            <div className="glass-card rounded-2xl p-4 border-l-4 border-l-emerald-400">
-              <div className="flex items-center gap-2 text-emerald-400 mb-1">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-xl font-black text-white">MAFIA Events</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                The Boardroom, Bootcamp & Venture Wars with ₹6k prizes
-              </p>
-            </div>
-
-            <div className="glass-card rounded-2xl p-4 border-l-4 border-l-amber-400">
-              <div className="flex items-center gap-2 text-amber-400 mb-1">
-                <Flame className="w-4 h-4" />
-                <span className="text-xl font-black text-white">First-Come</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Strict seat caps on simulations & clinical skills
-              </p>
-            </div>
+          {/* Key Facts Summary */}
+          <div className="mt-6 pt-4 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-zinc-500" />
+              Open to MBBS 1st Year to Interns
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-zinc-500" />
+              8 Hands-on Clinical Workshops
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-zinc-500" />
+              MASS &amp; MAFIA Official Events
+            </span>
           </div>
         </div>
       </div>

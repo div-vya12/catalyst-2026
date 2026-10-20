@@ -2,22 +2,18 @@ import { ConferenceData } from "@/types/conference";
 
 export const conferenceData: ConferenceData = {
   conference: {
-    name: "CATALYST 2025",
+    name: "CATALYST 2026",
     type: "Annual Undergraduate Academic Conference",
     institution: "Maulana Azad Medical College (MAMC)",
     city: "New Delhi",
-    start_date: "2025-12-01",
-    end_date: "2025-12-03",
-    display_dates: "1st – 3rd December 2025",
-    quote: {
-      text: "Wherever the art of medicine is loved, there is love for humanity",
-      author: "Hippocrates",
-    },
+    start_date: "2026-11-18",
+    end_date: "2026-11-20",
+    display_dates: "18th – 20th November 2026",
     tagline: "Learn. Practice. Innovate.",
     description:
-      "MAMC's annual conference featuring hands-on workshops, academic competitions and business events for MBBS students.",
+      "MAMC's annual national conference featuring hands-on simulation workshops, academic competitions, and healthcare innovation events for MBBS students across India.",
     eligibility_general:
-      "Academic events are open to all MBBS students (1st year to interns). Workshops are open to Maulanians and Non-Maulanians via separate registration forms.",
+      "Academic events are open to all MBBS students (1st year to interns). Workshops are open to Maulanians and Non-Maulanians via dedicated registration forms.",
     organizers: [
       {
         name: "Scientific Society of Maulana Azad Medical College (MASS)",
@@ -32,6 +28,8 @@ export const conferenceData: ConferenceData = {
     ],
     announcement_group_whatsapp:
       "https://chat.whatsapp.com/Fm4d79z5MPAHbStY0avOZk?mode=wwt",
+    institution_linkedin:
+      "https://www.linkedin.com/school/maulana-azad-medical-college-delhi/",
     general_contacts: {
       MASS: [
         { name: "Mananya Muskan", phone: "+91 7897976027" },
@@ -47,11 +45,11 @@ export const conferenceData: ConferenceData = {
 
   registration_info: {
     workshop_form_release_schedule: {
-      date: "2025-11-15",
+      date: "2026-11-05",
       slots: [
-        { workshop_day: "1st December workshops", form_release_time: "1:00 PM" },
-        { workshop_day: "2nd December workshops", form_release_time: "4:00 PM" },
-        { workshop_day: "3rd December workshops", form_release_time: "6:00 PM" },
+        { workshop_day: "18th November workshops", form_release_time: "1:00 PM" },
+        { workshop_day: "19th November workshops", form_release_time: "4:00 PM" },
+        { workshop_day: "20th November workshops", form_release_time: "6:00 PM" },
       ],
     },
     notes: [
@@ -61,12 +59,12 @@ export const conferenceData: ConferenceData = {
     ],
     late_academic_event_update: {
       applies_to: ["MedVenture", "RickThinking Reviews"],
-      date_of_update: "2025-11-30",
+      date_of_update: "2026-11-15",
       points: [
         "No Basic Registration (BR) required to participate.",
-        "MAMC students pay no fee; they must upload their college ID in the payment section.",
+        "MAMC students pay no fee; upload college ID in registration.",
         "Non-Maulanians pay a minimal entry fee of ₹50.",
-        "No delegate kits or additional materials will be provided.",
+        "No delegate kits or additional physical materials will be provided.",
       ],
     },
   },
@@ -79,22 +77,20 @@ export const conferenceData: ConferenceData = {
       tagline: "Where Simulation Meets Survival",
       department: "Anaesthesia",
       description:
-        "MAMC's first-ever simulator-based emergency workshop. Master CPR, airway management and oxygen therapy through high-fidelity simulations and hands-on sessions using advanced manikins and training models.",
+        "MAMC's premier simulator-based emergency workshop. Master CPR, airway management, and oxygen therapy through high-fidelity simulations using advanced manikins and training models.",
       whats_in_store: [
-        "CPR and lifesaving skills",
-        "Airway management and oxygen therapy",
-        "Emergency response readiness",
+        "CPR and lifesaving emergency skills",
+        "Airway management and oxygen therapy protocols",
+        "Emergency response readiness under critical situations",
         "Hands-on simulation with mannequins and dummies",
-        "Awareness of prompt and effective emergency care",
-        "Use of AED (Automated External Defibrillator) made easy",
+        "Use of AED (Automated External Defibrillator) made practical",
       ],
-      closing_line: "Because heroes aren't born. They're trained – in CODE NEBULA.",
-      date: "2025-12-01",
-      display_date: "1st December 2025",
+      date: "2026-11-18",
+      display_date: "18th November 2026",
       time: "11:00 AM – 3:30 PM",
       venue: "PGMET Lab, BL Taneja Block, MAMC",
       registration: {
-        form_release: "15 November 2025, 1:00 PM",
+        form_release: "5 November 2026, 1:00 PM",
         maulanian_url: "https://forms.gle/w3Lgg6FbSP2gDcRe7",
         non_maulanian_url: "https://forms.gle/godTdeX2TcXR1V8v5",
       },
@@ -111,25 +107,24 @@ export const conferenceData: ConferenceData = {
       tagline: "Make your first incision into the world of surgery",
       department: "Surgery",
       description:
-        "A hands-on surgical workshop to hone basic surgical skills – suturing, knot tying and instrument handling – and take a first confident step into the operating room.",
+        "A hands-on surgical workshop to hone basic surgical skills – suturing, knot tying, and instrument handling – to take your first confident step into the operating theatre.",
       whats_in_store: [
         "Surgical asepsis: hand hygiene & donning–doffing",
-        "Hands-on suturing: knotting, instrument use & closure techniques",
-        "Bowel perforation management & anastomosis training",
+        "Hands-on suturing: knotting, instrument handling & closure techniques",
+        "Bowel perforation management & anastomosis training models",
       ],
-      date: "2025-12-01 and 2025-12-02",
-      display_date: "1st & 2nd December 2025",
+      date: "2026-11-18 and 2026-11-19",
+      display_date: "18th & 19th November 2026",
       sessions: [
-        { date: "1st December 2025", time: "11:00 AM – 3:00 PM" },
-        { date: "2nd December 2025", time: "9:00 AM – 12:30 PM" },
-        { date: "2nd December 2025", time: "1:00 PM – 4:30 PM" },
+        { date: "18th November 2026", time: "11:00 AM – 3:00 PM" },
+        { date: "19th November 2026", time: "9:00 AM – 12:30 PM" },
+        { date: "19th November 2026", time: "1:00 PM – 4:30 PM" },
       ],
       venue: "PGMET Lab, BL Taneja Block, MAMC, New Delhi",
       registration: {
-        form_release: "15 November 2025, 6:00 PM",
+        form_release: "5 November 2026, 6:00 PM",
         maulanian_url: "https://forms.gle/HFWyxyQ5KFfbsztYA",
         non_maulanian_url: "https://forms.gle/AqBGSSgmxvGGT3As7",
-        alternate_url_in_lineup_post: "https://forms.gle/YVEpT7v96iVLvQmS8",
       },
       fee: null,
       contacts: [
@@ -140,23 +135,23 @@ export const conferenceData: ConferenceData = {
     {
       id: "optic-odyssey",
       name: "THE OPTIC ODYSSEY",
-      subtitle: "Ophthalmology Skills Workshop – Clinical Pearls in Ophthalmology",
-      tagline: "See beyond the surface – sharpen your vision, skills, and precision",
+      subtitle: "Ophthalmology Skills Workshop – Clinical Pearls",
+      tagline: "Sharpen your vision, surgical precision, and diagnostic depth",
       department: "Ophthalmology",
       description:
-        "A full-day hands-on Ophthalmology workshop covering core ocular procedures from examination to surgery, built to develop precision, skill and confidence.",
+        "A full-day hands-on Ophthalmology wet-lab covering core ocular procedures from examination to surgery, built to develop precision, skill and confidence.",
       whats_in_store: [
-        "Fundamentals of ophthalmic examination, including fundoscopy and tonometry (using goat's eyes)",
-        "Hands-on suturing techniques on goat's eyes for developing surgical precision",
-        "Introduction to Extracapsular Cataract Extraction (ECCE) – guided practice on goat's eyes",
-        "Awareness module on early detection and timely surgical management of common eye conditions",
+        "Fundamentals of ophthalmic exam: fundoscopy and tonometry (using goat eyes)",
+        "Hands-on suturing techniques on goat eyes for surgical micro-precision",
+        "Introduction to Extracapsular Cataract Extraction (ECCE) – guided practice",
+        "Early detection and timely surgical triage of common ocular emergencies",
       ],
-      date: "2025-12-02",
-      display_date: "2nd December 2025",
+      date: "2026-11-19",
+      display_date: "19th November 2026",
       time: "8:00 AM – 5:00 PM",
-      venue: "Department of Ophthalmology, Guru Nanak Eye Centre (GNEC), MAMC, New Delhi",
+      venue: "Guru Nanak Eye Centre (GNEC), MAMC, New Delhi",
       registration: {
-        form_release: "15 November 2025, 4:00 PM",
+        form_release: "5 November 2026, 4:00 PM",
         maulanian_url: "https://forms.gle/YrnZPzNRtZ8zVhju5",
         non_maulanian_url: "https://forms.gle/sfMmpuPCjduJY6bd7",
       },
@@ -169,24 +164,23 @@ export const conferenceData: ConferenceData = {
     {
       id: "rhythm-unravelled",
       name: "RHYTHM UNRAVELLED",
-      subtitle: "ECG Workshop – ECG Masterclass",
+      subtitle: "ECG Masterclass – Department of Medicine",
       tagline: "Unravel the rhythm, master the beat – every heartbeat tells a story",
       department: "Medicine",
       description:
-        "A hands-on workshop by the Department of Medicine to build confidence in recording, reading, interpreting and applying ECGs in real clinical settings.",
+        "A hands-on masterclass to build diagnostic mastery in recording, reading, interpreting and applying ECGs in real emergency and clinical settings.",
       whats_in_store: [
-        "Introduction to basic ECG theory and principles",
-        "Demonstration of lead placement and electrode application",
-        "Understanding ECG waveforms and standard structures",
-        "Step-by-step guide to ECG interpretation",
-        "Small-group discussions of real clinical cases with actual ECG examples",
+        "Core ECG electrophysiology and vector principles",
+        "Lead placement demonstration and electrode physics",
+        "Step-by-step systemic guide to complex ECG interpretation",
+        "Case-based discussions of clinical tachyarrhythmias, STEMIs & blocks",
       ],
-      date: "2025-12-02",
-      display_date: "2nd December 2025",
+      date: "2026-11-19",
+      display_date: "19th November 2026",
       time: "2:00 PM – 4:00 PM",
       venue: "New Lecture Theatre, Ground Floor, Academic Block, MAMC",
       registration: {
-        form_release: "15 November 2025, 4:00 PM",
+        form_release: "5 November 2026, 4:00 PM",
         maulanian_url: "https://forms.gle/Qv93JqTqS7wKVvvP6",
         non_maulanian_url: "https://forms.gle/Y9E9KXZSPvVwdGXE6",
       },
@@ -199,24 +193,23 @@ export const conferenceData: ConferenceData = {
     {
       id: "genesis-protocol",
       name: "THE GENESIS PROTOCOL",
-      subtitle: "Comprehensive Obstetrics & Gynaecology Workshop – Essentials of Gynaecological Practice",
+      subtitle: "Comprehensive Obstetrics & Gynaecology Workshop",
       tagline: "From labour to life – learn, practice, and perfect",
       department: "Obstetrics & Gynaecology",
       description:
-        "A hands-on Gynaecology and Obstetrics workshop curated exclusively for undergraduate students – from managing labour to mastering life-saving drills.",
+        "Curated exclusively for medical students: hands-on simulation training in normal labour, emergency obstetric drills, and pelvic examination.",
       whats_in_store: [
-        "Management of Labour – understanding each stage and handling complications",
-        "AMTSL & PPH Drill – active management of the third stage of labour and response to postpartum haemorrhage",
-        "Maternal Collapse Management – emergency protocols and team response",
-        "Family Planning Counselling – with hands-on CuT insertion practice",
-        "Normal Vaginal Delivery & Episiotomy Stitching Workshop – guided simulation and supervised skill training",
+        "Management of labour stages and early complication identification",
+        "AMTSL & PPH Drill: active management and rapid postpartum haemorrhage triage",
+        "Maternal collapse management & life support algorithms",
+        "Normal vaginal delivery & episiotomy repair simulation models",
       ],
-      date: "2025-12-02",
-      display_date: "2nd December 2025",
+      date: "2026-11-19",
+      display_date: "19th November 2026",
       time: "1:00 PM – 4:00 PM",
       venue: "Department of Obstetrics & Gynaecology, MAMC & LNJP Hospital",
       registration: {
-        form_release: "15 November 2025, 4:00 PM",
+        form_release: "5 November 2026, 4:00 PM",
         maulanian_url: "https://forms.gle/EHCnZczYXQahtfav6",
         non_maulanian_url: "https://forms.gle/rjQLT7oSoAi5DAJJ6",
       },
@@ -229,16 +222,16 @@ export const conferenceData: ConferenceData = {
     {
       id: "skeletal-frontier",
       name: "THE SKELETAL FRONTIER",
-      subtitle: "Orthopaedic First Aid Workshop – Orthopaedic Skills & Fracture Management",
-      tagline: "Get ready to roll, splint, and save",
+      subtitle: "Orthopaedic First Aid & Fracture Management",
+      tagline: "Get ready to roll, splint, and save lives in trauma care",
       department: "Orthopaedics",
       description:
-        "A hands-on workshop to make you confident in managing musculoskeletal emergencies and your first steps into trauma care.",
+        "Hands-on trauma workshop to build reflexes in musculoskeletal emergency triage, spinal immobilisation, and fracture management.",
       whats_in_store: [
-        "Interactive presentation on Basic Orthopaedic First Aid",
-        "Guided practice in bandaging, slings, splints and plaster application",
-        "Step-by-step demo and supervised practice of the Log Roll Technique for safe spinal handling",
-        "Wound dressing and bandaging essentials for orthopaedic trauma cases",
+        "Interactive instruction on Basic Orthopaedic First Aid",
+        "Supervised practice in splints, traction, and plaster application",
+        "Log-roll technique demonstration for safe spinal trauma transfer",
+        "Cervical collar application and helmet removal in road accidents",
       ],
       detailed_format: {
         total_slots: 3,
@@ -246,31 +239,27 @@ export const conferenceData: ConferenceData = {
           "Demo lecture by Dr. Sumit Sural (HOD Orthopaedics)",
           "Introduction to Orthopaedic First Aid in trauma",
           "Live demonstration of Splints, Traction & Orthosis",
-          "Combined Plaster Application demo",
-          "Basics of X-ray reading & interpretation",
+          "Plaster Application demo & X-ray interpretation basics",
         ],
         hands_on_sessions: {
-          description: "Students are divided into two groups for practical training.",
+          description: "Hands-on rotations divided into small batches.",
           group_1: [
             "Plaster application on peers",
-            "Splints & Traction workshop",
+            "Splints & Traction immobilization",
           ],
           group_2: [
-            "Spinal injury patient handling",
-            "Correct helmet removal in RTA cases",
-            "Cervical collar application",
-            "Log-roll technique for safe transfer",
-            "Crepe bandage application for sprains",
-            "Sling preparation & application for fracture immobilisation",
+            "Spinal injury patient handling & Log-roll technique",
+            "Helmet removal in RTA cases & Cervical collar",
+            "Sling preparation & crepe bandaging",
           ],
         },
       },
-      date: "2025-12-03",
-      display_date: "3rd December 2025",
+      date: "2026-11-20",
+      display_date: "20th November 2026",
       time: "2:00 PM – 5:00 PM",
       venue: "Orthopaedic Block, LNJP (Lok Nayak) Hospital, New Delhi",
       registration: {
-        form_release: "15 November 2025, 6:00 PM",
+        form_release: "5 November 2026, 6:00 PM",
         maulanian_url: "https://forms.gle/2UK6fWsSG3YzHMqy5",
         non_maulanian_url: "https://forms.gle/Uf32XC4ko2Pt12Au8",
       },
@@ -283,24 +272,23 @@ export const conferenceData: ConferenceData = {
     {
       id: "echoes-of-equilibrium",
       name: "ECHOES OF EQUILIBRIUM",
-      subtitle: "ABG Analysis Workshop – ABG Analysis Simplified",
+      subtitle: "ABG Analysis Simplified – Department of Medicine",
       tagline: "Where acid-base meets clinical clarity",
       department: "Medicine",
       description:
-        "A guided, hands-on workshop by the Department of Medicine that simplifies Arterial Blood Gas (ABG) interpretation, bridging physiology and emergency medicine.",
+        "A guided, hands-on masterclass that simplifies Arterial Blood Gas (ABG) interpretation, bridging physiological theory with ICU medicine.",
       whats_in_store: [
-        "Fundamentals of ABG theory and its clinical relevance",
-        "Demonstration of ABG sampling techniques",
-        "Interpretation of ABG results across varied clinical scenarios",
-        "Small-group, case-based discussions on diagnosis and management",
-        "Enhanced ability to make evidence-based decisions in critical cases",
+        "Fundamentals of acid-base disorders and Henderson-Hasselbalch equations",
+        "Demonstration of arterial puncture and sampling techniques",
+        "Systematic step-by-step interpretation of complicated mixed disorders",
+        "Small-group case discussions on critical ICU cases",
       ],
-      date: "2025-12-03",
-      display_date: "3rd December 2025",
+      date: "2026-11-20",
+      display_date: "20th November 2026",
       time: "2:00 PM – 4:00 PM",
       venue: "New Lecture Theatre, Maulana Azad Medical College",
       registration: {
-        form_release: "15 November 2025, 6:00 PM",
+        form_release: "5 November 2026, 6:00 PM",
         maulanian_url: "https://forms.gle/KJAt2UK7YWmRg9kw8",
         non_maulanian_url: "https://forms.gle/isKQmsRSeBpdh6Ju7",
       },
@@ -313,19 +301,19 @@ export const conferenceData: ConferenceData = {
     {
       id: "molecules-in-motion",
       name: "MOLECULES IN MOTION",
-      subtitle: "Biochemistry Techniques Workshop",
-      tagline: "Explore the molecular biology techniques of modern labs",
+      subtitle: "Biochemistry & Molecular Diagnostics Techniques",
+      tagline: "Explore cutting-edge molecular biology techniques of modern labs",
       department: "Biochemistry",
       description:
-        "A guided, hands-on workshop by the Department of Biochemistry for everyone from 1st-year beginners to advanced learners.",
+        "A guided, hands-on workshop by the Department of Biochemistry for MBBS students to practice PCR, DNA isolation, and automated diagnostic workflows.",
       whats_in_store: [
         "Hands-on DNA extraction from biological samples",
-        "Gel electrophoresis for DNA separation and visualization",
-        "Introduction to lab automation & molecular machinery used in cutting-edge diagnostics",
-        "Guided lab round to understand real-time workflows and instrumentation",
+        "Gel electrophoresis for DNA separation and UV visualization",
+        "Introduction to automated diagnostic molecular machinery",
+        "Guided round of modern clinical biochemistry laboratories",
       ],
-      date: "2025-12-03",
-      display_date: "3rd December 2025",
+      date: "2026-11-20",
+      display_date: "20th November 2026",
       time: "9:30 AM – 1:00 PM",
       venue: "Department of Biochemistry, 4th Floor, Academic Block, GIPMER",
       registration: {
@@ -335,7 +323,7 @@ export const conferenceData: ConferenceData = {
         note: "Single registration link for all participants",
       },
       fee: {
-        free_condition: "FREE if registered for 2 or more workshops under Catalyst'25",
+        free_condition: "FREE if registered for 2 or more workshops under Catalyst '26",
         paid_condition: "₹100 if registered for fewer than 2 workshops",
       },
       contacts: [
@@ -351,9 +339,9 @@ export const conferenceData: ConferenceData = {
       name: "CASE FILES",
       subtitle: "Clinical Case Presentation Competition",
       organizer: "MASS",
-      tagline: "Present intriguing medical cases via posters",
+      tagline: "Present intriguing medical cases via structured posters",
       description:
-        "Share your clinical findings with esteemed faculty and research scholars and gain valuable feedback on your work.",
+        "Share clinical discoveries with esteemed MAMC faculty and peer researchers, and gain constructive feedback from expert juries.",
       eligibility: "All MBBS students (1st year to interns)",
       format: "Two rounds",
       rounds: [
@@ -363,7 +351,7 @@ export const conferenceData: ConferenceData = {
           mode: "Online",
           submission_format: "PDF only",
           abstract_specifications: {
-            word_limit: "300–350 words (references not included in word limit)",
+            word_limit: "300–350 words (references not included)",
             required_headings: [
               "Title of the study",
               "Introduction",
@@ -374,25 +362,25 @@ export const conferenceData: ConferenceData = {
           },
           rules: [
             "Only individual entries will be considered.",
-            "Plagiarism of any kind leads to instant disqualification.",
-            "No name or institutional details of participants should appear in the entry.",
+            "Plagiarism leads to immediate disqualification.",
+            "No personal or institutional identity marks in abstract.",
           ],
-          file_naming: "YourName_CaseCatalystMAMC2025",
-          submission_deadline: "2025-11-20T12:00:00+05:30",
-          display_deadline: "20th November 2025, 12:00 PM",
+          file_naming: "YourName_CaseCatalystMAMC2026",
+          submission_deadline: "2026-11-10T12:00:00+05:30",
+          display_deadline: "10th November 2026, 12:00 PM",
         },
         {
           round: 2,
-          name: "Offline Round – Poster Presentation",
+          name: "Offline Poster Defense",
           mode: "Offline",
           description:
-            "Top 15 entries are invited to present their case to an eminent jury at MAMC, New Delhi.",
-          date: "2025-12-02",
-          display_date: "2nd December 2025",
+            "Top 15 shortlisted entries present their case poster before faculty at MAMC.",
+          date: "2026-11-19",
+          display_date: "19th November 2026",
           time: "9:00 AM onwards",
         },
       ],
-      prizes: "Exciting cash prizes for top presenters",
+      prizes: "Cash prizes & certificates for top presenters",
       registration_url: "https://forms.gle/4tFP1PhcyMSmjSUP9",
       contacts: [
         { name: "Ansh Agarwal", phone: "+91 8000230796" },
@@ -404,9 +392,9 @@ export const conferenceData: ConferenceData = {
       name: "INQUISTADOR",
       subtitle: "Oral Research Paper Presentation",
       organizer: "MASS",
-      tagline: "An opportunity to showcase your research and gain insights from expert judges",
+      tagline: "Defend your original research and systematic reviews",
       description:
-        "Present your research to top faculty, peers and research scholars and receive valuable feedback.",
+        "Present your medical research papers to top clinical faculty and student researchers with live Q&A defense.",
       eligibility: "All MBBS students (1st year to interns)",
       format: "Two rounds",
       rounds: [
@@ -414,7 +402,7 @@ export const conferenceData: ConferenceData = {
           round: 1,
           name: "Online Screening Round",
           mode: "Online",
-          submission_format: "Abstract in PDF format only",
+          submission_format: "Abstract in PDF format",
           abstract_types_accepted: [
             "Original Research",
             "Systematic Reviews and Meta-Analysis",
@@ -424,38 +412,28 @@ export const conferenceData: ConferenceData = {
             structure_original_research: [
               "Title",
               "Background",
-              "Aims and Objectives",
+              "Aims & Objectives",
               "Methodology",
-              "Results",
-              "Conclusions",
-              "References (Vancouver Style)",
-            ],
-            structure_systematic_review_meta_analysis: [
-              "Title",
-              "Background",
-              "Search Strategy",
-              "Statistical Analysis",
               "Results",
               "Conclusions",
               "References (Vancouver Style)",
             ],
           },
           rules: [
-            "Abstract file title: YourName_AbstractCatalystMAMC2025",
-            "No personal or institutional details in the abstract, to avoid disqualification.",
-            "Plagiarism or exceeding the word limit will result in penalties.",
+            "Abstract file title: YourName_AbstractCatalystMAMC2026",
+            "Anonymized abstract without college name to prevent bias.",
           ],
-          submission_deadline: "2025-11-20T12:00:00+05:30",
-          display_deadline: "20th November 2025, 12:00 PM",
+          submission_deadline: "2026-11-10T12:00:00+05:30",
+          display_deadline: "10th November 2026, 12:00 PM",
         },
         {
           round: 2,
           name: "Offline Oral Presentation",
           mode: "Offline",
           description:
-            "Top 10 abstracts are invited to present at Catalyst 2025, MAMC, New Delhi, before an eminent jury.",
-          date: "2025-12-03",
-          display_date: "3rd December 2025",
+            "Top 10 selected abstracts present oral slide defense before eminent professors.",
+          date: "2026-11-20",
+          display_date: "20th November 2026",
           time: "9:00 AM onwards",
         },
       ],
@@ -469,32 +447,28 @@ export const conferenceData: ConferenceData = {
       id: "hackathon",
       name: "HACKATHON",
       subtitle: "Healthcare Innovation Hackathon",
-      organizer: "MAMC SciSoc (MASS)",
-      tagline:
-        "Where passion meets purpose and your ideas become the spark for tomorrow's breakthroughs",
+      organizer: "MASS",
+      tagline: "Where medical passion meets engineering breakthroughs",
       description:
-        "Brilliant minds unite to craft solutions that make a difference. Participants choose from three problem-statement tracks.",
+        "Interdisciplinary healthcare hackathon tackling real-world clinical and public health challenges across 3 tracks.",
       tracks: [
         {
-          name: "Climate-Linked Innovations",
-          prompt:
-            "Do you have what it takes to shield communities from the heat, floods and diseases of a changing planet?",
+          name: "Climate-Linked Health Innovations",
+          prompt: "Innovate tools protecting communities from extreme heat, floods and vector-borne outbreaks.",
         },
         {
           name: "Resilience Beyond Infection",
-          prompt:
-            "Do you have what it takes to reimagine healthcare for those who need the most – uniting technology and humanity to outsmart HIV?",
+          prompt: "Reimagine chronic infection care uniting digital health, patient adherence, and outsmarting HIV.",
         },
         {
-          name: "Rapid Response Innovations",
-          prompt:
-            "Do you have what it takes to save a life when every second counts?",
+          name: "Rapid Response & Emergency Care",
+          prompt: "Develop life-saving triage and rapid dispatch solutions when every second counts.",
         },
       ],
-      proposal_deadline: "2025-11-20T12:00:00+05:30",
-      display_proposal_deadline: "20th November 2025, 12:00 PM",
-      date: "2025-12-02",
-      display_date: "2nd December 2025",
+      proposal_deadline: "2026-11-10T12:00:00+05:30",
+      display_proposal_deadline: "10th November 2026, 12:00 PM",
+      date: "2026-11-19",
+      display_date: "19th November 2026",
       time: "4:00 PM onwards",
       venue: "New LT, Ground Floor, MAMC",
       problem_statement_url:
@@ -510,26 +484,24 @@ export const conferenceData: ConferenceData = {
       name: "MEDVENTURE",
       subtitle: "The Medical Game Show",
       organizer: "MASS",
-      tagline: "At MAMC, medicine isn't just studied – it's lived",
+      tagline: "Medicine isn't just studied – it's lived",
       description:
-        "Put your clinical instincts to the test – simulate real dilemmas, make smart decisions and think like a doctor.",
+        "Put your clinical instincts to the test – simulate real ER dilemmas, make rapid calls, diagnose tricky presentations and outshine your peers for cash prizes.",
       highlights: [
-        "Take charge of the ER like Dr. House – diagnose, decide and save lives under pressure",
-        "Realistic interactive medical cases – Diagnose. Manage. Compete.",
-        "Tackle real-life medical dilemmas, make quick calls and see where your choices lead",
-        "Show off your clinical smarts, outshine your peers and grab the cash prize",
+        "Take charge of emergency cases under pressure like Dr. House",
+        "Interactive real dilemma simulation & clinical decision trees",
+        "Compete for cash prize and campus bragging rights",
       ],
-      date: "2025-12-01",
-      display_date: "1st December 2025",
+      date: "2026-11-18",
+      display_date: "18th November 2026",
       time: "4:00 PM – 6:00 PM",
       venue: "New LT, Ground Floor, MAMC",
       fee: {
-        maulanians: "Free (upload college ID in payment section)",
+        maulanians: "Free (upload college ID)",
         non_maulanians: "₹50",
       },
       basic_registration_required: false,
-      note: "No delegate kits or additional materials will be provided.",
-      prizes: "Cash prize and campus bragging rights",
+      prizes: "Cash prizes for winning teams",
       registration_url: "https://forms.gle/gd9HQgWRCLYaSRUk9",
       contacts: [
         { name: "Harsaaj Singh Wander", phone: "+91 9599925572" },
@@ -543,24 +515,21 @@ export const conferenceData: ConferenceData = {
       organizer: "MASS",
       tagline: "Rick your brains and make us question like Morty",
       description:
-        "Step into a multiverse of possibilities: analyse the provided articles, formulate your idea, and prove or support your proposal. Submissions can be a mathematical model, experimental design, a question with a probable solution, future research potential, a hypothesis with a way to prove it, and more. Anything creative, novel or of scientific value is welcome.",
+        "Unleash scientific creativity: formulate mathematical models, novel hypotheses, experimental setups, or speculative future biomedical solutions.",
       highlights: [
-        "Think like Rick and Morty to unleash immense scientific potential",
-        "Step into a multiverse of possibilities",
+        "Multiverse of scientific ideation & creative hypothesis formulation",
+        "Submit mathematical models, experimental designs, or speculative theories",
       ],
       mode: "Online",
-      submission_deadline: "2025-11-30",
-      display_deadline: "30th November 2025",
+      submission_deadline: "2026-11-15",
+      display_deadline: "15th November 2026",
       results: "Announced online",
       fee: {
-        maulanians: "Free (upload college ID in payment section)",
+        maulanians: "Free (upload college ID)",
         non_maulanians: "₹50",
       },
       basic_registration_required: false,
-      note: "No delegate kits or additional materials will be provided.",
       registration_url: "https://forms.gle/yX5of5fKJe6qNfcY6",
-      original_registration_url:
-        "https://docs.google.com/forms/d/1PmjDQYN1MJLbwhruRR98aNPbRjw6MhHGoOSKoq3yRsE/edit?ts=68fcd069",
       contacts: [
         { name: "Biswajyoti Das", phone: "+91 7896414255" },
         { name: "Paras Jain", phone: "+91 9289691376" },
@@ -572,18 +541,18 @@ export const conferenceData: ConferenceData = {
     organizer: "Maulana Azad Finance & Innovation Alliance (MAFIA)",
     instagram: "@mafia_mamc",
     intro:
-      "Three flagship events to sharpen your analytical mind, entrepreneurial spark and real-world problem-solving instincts.",
+      "Flagship events designed to sharpen financial intelligence, medical entrepreneurship, and strategic decision making.",
     prize_note: "Cash prizes worth ₹6k at every event",
-    spots_note: "All events have limited spots – register ASAP.",
+    spots_note: "Strict seat caps – register in advance",
     events: [
       {
         id: "the-boardroom",
         name: "The Boardroom",
-        subtitle: "Flagship Problem-Solving Event",
+        subtitle: "Flagship Problem-Solving & Case Defense",
         description:
-          "Sharpen your thinking through Group Discussions & Personal Interviews.",
-        date: "2025-12-01",
-        display_date: "1st December 2025",
+          "Sharpen your analytical instincts through structured Group Discussions & Personal Interviews.",
+        date: "2026-11-18",
+        display_date: "18th November 2026",
         time: "11:00 AM – 1:00 PM",
         venue: "Demo Room, MAMC",
         fee: "₹99",
@@ -593,11 +562,11 @@ export const conferenceData: ConferenceData = {
       {
         id: "business-bootcamp",
         name: "Business Bootcamp for Medicos",
-        subtitle: "A Medico's Guide to the Business World – 2-Day Workshop",
+        subtitle: "A Medico's Practical Guide to the Business World (2-Day)",
         description:
-          "Learn how to start your own clinic/startup and create your own business plan. Guest speakers to be announced.",
-        date: "2025-12-02 and 2025-12-03",
-        display_date: "2nd & 3rd December 2025",
+          "Learn how to design your own clinic/startup and build an investor-ready business plan.",
+        date: "2026-11-19 and 2026-11-20",
+        display_date: "19th & 20th November 2026",
         time: "2:00 PM – 5:00 PM",
         venue: "New Lecture Hall, MAMC",
         fee: {
@@ -612,22 +581,19 @@ export const conferenceData: ConferenceData = {
       {
         id: "venture-wars",
         name: "Venture Wars",
-        subtitle: "Green or Red – Startup Strategy Battle",
+        subtitle: "Startup Strategy & Market Trading Battle",
         description:
-          "Pitch your startup idea, raise capital, trade shares and build your empire. Your startup idea should solve a real-world problem, such as those related to the medical field or the SDGs. Will you be a financial genius or a bankrupt dreamer?",
+          "Pitch your startup idea, raise capital, trade shares, navigate real-time market shifts and build your empire.",
         highlights: [
-          "Build Your Empire | Manipulate the Market | Outsmart Your Rivals",
-          "Pitch your startup",
-          "Sell shares, raise capital, and invest in competitors",
-          "Predict the market",
-          "Compete with other teams for net worth",
+          "Pitch your healthcare or SDG startup idea",
+          "Sell equity, raise simulated capital, and acquire stakes in competitors",
+          "Predict macroeconomic market turns to maximize team net worth",
         ],
-        date: "2025-12-03",
-        display_date: "3rd December 2025",
+        date: "2026-11-20",
+        display_date: "20th November 2026",
         time: "11:00 AM – 1:00 PM",
         venue: "Demo Room, MAMC",
         fee: "₹249 per team",
-        note: "Problem statements and rules to be announced.",
         registration_url:
           "https://unstop.com/o/Fa8ZKYf?lb=QTYlvjk&utm_medium=Share&utm_source=not_a_rush&utm_campaign=Competitions",
         contacts: [
@@ -643,9 +609,9 @@ export const conferenceData: ConferenceData = {
   },
 
   accommodation: {
-    title: "CATALYST 2025 – Accommodation Registration",
+    title: "CATALYST 2026 – Accommodation Registration",
     description:
-      "Accommodation has been arranged for participants attending CATALYST 2025. The facility is within walking distance of both the college and the hospital. Room allotment is subject to availability and on a first-come, first-served basis. Please provide accurate information.",
+      "Accommodation has been arranged for registered delegates attending CATALYST 2026. The facility is within walking distance of both MAMC and LNJP Hospital. Room allotment is on a first-come, first-served basis.",
     form_url: "https://forms.gle/aUwSpZe2T1j6fcHQA",
     contacts: [
       { name: "Ansh Agarwal", phone: "+91 8000230796" },
@@ -656,8 +622,8 @@ export const conferenceData: ConferenceData = {
 
   schedule_overview: [
     {
-      date: "2025-12-01",
-      label: "Day 1 – 1st December",
+      date: "2026-11-18",
+      label: "Day 1 – 18th November",
       events: [
         { name: "Code Nebula", time: "11:00 AM – 3:30 PM", type: "Workshop" },
         { name: "Know Your Knots (Session 1)", time: "11:00 AM – 3:00 PM", type: "Workshop" },
@@ -666,11 +632,11 @@ export const conferenceData: ConferenceData = {
       ],
     },
     {
-      date: "2025-12-02",
-      label: "Day 2 – 2nd December",
+      date: "2026-11-19",
+      label: "Day 2 – 19th November",
       events: [
         { name: "Case Files (Poster Presentation)", time: "9:00 AM onwards", type: "Academic Event" },
-        { name: "Know Your Knots (Sessions 2 & 3)", time: "9:00 AM – 12:30 PM and 1:00 PM – 4:30 PM", type: "Workshop" },
+        { name: "Know Your Knots (Sessions 2 & 3)", time: "9:00 AM – 12:30 PM & 1:00 PM – 4:30 PM", type: "Workshop" },
         { name: "The Optic Odyssey", time: "8:00 AM – 5:00 PM", type: "Workshop" },
         { name: "The Genesis Protocol", time: "1:00 PM – 4:00 PM", type: "Workshop" },
         { name: "Rhythm Unravelled", time: "2:00 PM – 4:00 PM", type: "Workshop" },
@@ -679,8 +645,8 @@ export const conferenceData: ConferenceData = {
       ],
     },
     {
-      date: "2025-12-03",
-      label: "Day 3 – 3rd December",
+      date: "2026-11-20",
+      label: "Day 3 – 20th November",
       events: [
         { name: "Inquistador (Oral Presentation)", time: "9:00 AM onwards", type: "Academic Event" },
         { name: "Molecules in Motion", time: "9:30 AM – 1:00 PM", type: "Workshop" },

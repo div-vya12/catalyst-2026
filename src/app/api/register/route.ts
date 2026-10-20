@@ -48,15 +48,14 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // 3. Generate unique Ticket/Registration ID
-    const ticketId = `CAT25-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    // 3. Generate unique Ticket/Registration ID for 2026
+    const ticketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
     // 4. Return registration payload
-    // Ready for integration with Prisma / PostgreSQL and Razorpay order creation
     return NextResponse.json(
       {
         success: true,
-        message: "Registration initiated successfully",
+        message: "Registration recorded successfully",
         data: {
           ticketId,
           fullName,
