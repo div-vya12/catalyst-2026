@@ -79,6 +79,18 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    if (error?.message?.startsWith("WORKSHOP_FULL:")) {
+      const cleanMessage = error.message.replace("WORKSHOP_FULL: ", "");
+      return NextResponse.json(
+        {
+          success: false,
+          error: cleanMessage,
+          code: "WORKSHOP_FULL",
+        },
+        { status: 409 }
+      );
+    }
+
     console.error("Registration route error:", error);
     return NextResponse.json(
       { error: "Internal server error during registration", details: error.message },

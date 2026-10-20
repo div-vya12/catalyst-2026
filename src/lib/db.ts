@@ -116,6 +116,29 @@ export const getPrismaClient = (): PrismaClient | undefined => {
 
 export const prisma = getPrismaClient();
 
+export const WORKSHOP_SEAT_LIMIT = 50;
+
+export const CLINICAL_WORKSHOPS = [
+  { id: "code-nebula", name: "CODE NEBULA", department: "Anaesthesia" },
+  { id: "know-your-knots", name: "KNOW YOUR KNOTS", department: "Surgery" },
+  { id: "optic-odyssey", name: "THE OPTIC ODYSSEY", department: "Ophthalmology" },
+  { id: "rhythm-unravelled", name: "RHYTHM UNRAVELLED", department: "Medicine" },
+  { id: "genesis-protocol", name: "GENESIS PROTOCOL", department: "Obstetrics & Gynaecology" },
+  { id: "skeletal-frontier", name: "SKELETAL FRONTIER", department: "Orthopaedics" },
+  { id: "echoes-of-equilibrium", name: "ECHOES OF EQUILIBRIUM", department: "Paediatrics & Critical Care" },
+  { id: "molecules-in-motion", name: "MOLECULES IN MOTION", department: "Biochemistry" },
+] as const;
+
+export interface WorkshopCapacity {
+  id: string;
+  name: string;
+  department: string;
+  enrolled: number;
+  remaining: number;
+  limit: number;
+  isFull: boolean;
+}
+
 export interface RegistrationInput {
   ticketId: string;
   fullName: string;
@@ -134,6 +157,74 @@ export interface RegistrationInput {
 
 // In-memory fallback cache (used when no database is connected yet)
 const memoryStore: (RegistrationInput & { id: string; createdAt: string; updatedAt: string })[] = [];
+
+/**
+ * Real-time workshop capacity counter (50 seats cap per workshop, first-come first-served)
+ */
+export async function getWorkshopSeatStats(): Promise<Record<string, WorkshopCapacity>> {
+  const client = getPrismaClient();
+
+  const counts: Record<string, number> = {};
+  for (const ws of CLINICAL_WORKSHOPS) {
+    counts[ws.id] = 0;
+  }
+
+  if (client) {
+    try {
+      const records = await client.registration.findMany({
+        select: { selectedEvents: true },
+      });
+
+      for (const reg of records) {
+        if (Array.isArray(reg.selectedEvents)) {
+          for (const ev of reg.selectedEvents) {
+            if (counts[ev] !== undefined) {
+              counts[ev]++;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[Database Error] Failed to compute workshop stats via Prisma:", err);
+      for (const reg of memoryStore) {
+        if (Array.isArray(reg.selectedEvents)) {
+          for (const ev of reg.selectedEvents) {
+            if (counts[ev] !== undefined) {
+              counts[ev]++;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    for (const reg of memoryStore) {
+      if (Array.isArray(reg.selectedEvents)) {
+        for (const ev of reg.selectedEvents) {
+          if (counts[ev] !== undefined) {
+            counts[ev]++;
+          }
+        }
+      }
+    }
+  }
+
+  const result: Record<string, WorkshopCapacity> = {};
+  for (const ws of CLINICAL_WORKSHOPS) {
+    const enrolled = counts[ws.id] || 0;
+    const remaining = Math.max(0, WORKSHOP_SEAT_LIMIT - enrolled);
+    result[ws.id] = {
+      id: ws.id,
+      name: ws.name,
+      department: ws.department,
+      enrolled,
+      remaining,
+      limit: WORKSHOP_SEAT_LIMIT,
+      isFull: enrolled >= WORKSHOP_SEAT_LIMIT,
+    };
+  }
+
+  return result;
+}
 
 /**
  * Automatically create the Registration table if it does not exist yet
@@ -215,6 +306,22 @@ export async function ensureDatabaseTables(): Promise<{ success: boolean; error?
  * Persist registration record to Database (Prisma / PostgreSQL)
  */
 export async function saveRegistration(input: RegistrationInput) {
+  // 1. First-Come, First-Served Capacity Enforcement (Strict 50 seats per workshop limit)
+  const workshopIds = CLINICAL_WORKSHOPS.map((w) => w.id as string);
+  const selectedWorkshopIds = (input.selectedEvents || []).filter((ev) => workshopIds.includes(ev));
+
+  if (selectedWorkshopIds.length > 0) {
+    const currentStats = await getWorkshopSeatStats();
+    for (const wid of selectedWorkshopIds) {
+      const cap = currentStats[wid];
+      if (cap && cap.isFull) {
+        throw new Error(
+          `WORKSHOP_FULL: Workshop '${cap.name}' is SOLD OUT (maximum ${WORKSHOP_SEAT_LIMIT} seats reached). Registrations are strictly on a first-come, first-served basis.`
+        );
+      }
+    }
+  }
+
   const client = getPrismaClient();
 
   if (client) {
@@ -238,6 +345,10 @@ export async function saveRegistration(input: RegistrationInput) {
       });
       return { record: created, source: "database" };
     } catch (error: any) {
+      if (error?.message?.startsWith("WORKSHOP_FULL:")) {
+        throw error;
+      }
+
       console.error("[Database Error] Failed to save via Prisma:", error);
 
       // If table doesn't exist, auto-create and retry once

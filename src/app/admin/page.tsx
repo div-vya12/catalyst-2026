@@ -22,7 +22,20 @@ import {
   Eye,
   X,
   Image as ImageIcon,
+  Flame,
+  Layers,
 } from "lucide-react";
+
+const CLINICAL_WORKSHOPS = [
+  { id: "code-nebula", name: "CODE NEBULA", dept: "Anaesthesia" },
+  { id: "know-your-knots", name: "KNOW YOUR KNOTS", dept: "Surgery" },
+  { id: "optic-odyssey", name: "THE OPTIC ODYSSEY", dept: "Ophthalmology" },
+  { id: "rhythm-unravelled", name: "RHYTHM UNRAVELLED", dept: "Medicine" },
+  { id: "genesis-protocol", name: "GENESIS PROTOCOL", dept: "OBGYN" },
+  { id: "skeletal-frontier", name: "SKELETAL FRONTIER", dept: "Orthopaedics" },
+  { id: "echoes-of-equilibrium", name: "ECHOES OF EQUILIBRIUM", dept: "Critical Care" },
+  { id: "molecules-in-motion", name: "MOLECULES IN MOTION", dept: "Biochemistry" },
+] as const;
 
 interface RegistrationRecord {
   id: string;
@@ -56,6 +69,7 @@ export default function AdminPage() {
   const [storageSource, setStorageSource] = useState<string>("unknown");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "maulanian" | "non-maulanian">("all");
+  const [selectedWorkshopFilter, setSelectedWorkshopFilter] = useState<string | null>(null);
   const [selectedIdImage, setSelectedIdImage] = useState<{
     name: string;
     college: string;
@@ -204,6 +218,9 @@ export default function AdminPage() {
     const matchesFilter =
       filterType === "all" || r.delegateType === filterType;
 
+    const matchesWorkshop =
+      !selectedWorkshopFilter || (r.selectedEvents || []).includes(selectedWorkshopFilter);
+
     const q = searchQuery.toLowerCase();
     const matchesSearch =
       r.fullName.toLowerCase().includes(q) ||
@@ -212,11 +229,26 @@ export default function AdminPage() {
       r.phone.includes(q) ||
       r.college.toLowerCase().includes(q);
 
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesWorkshop && matchesSearch;
   });
 
   const totalRevenue = registrations.reduce((acc, curr) => acc + (curr.amountPayable || 0), 0);
   const maulaniansCount = registrations.filter((r) => r.delegateType === "maulanian").length;
+
+  // Workshop capacity metrics (Strict 50 seats limit per workshop, FCFS)
+  const workshopStats = CLINICAL_WORKSHOPS.map((ws) => {
+    const enrolled = registrations.filter((r) => (r.selectedEvents || []).includes(ws.id)).length;
+    const remaining = Math.max(0, 50 - enrolled);
+    const percent = Math.min(100, Math.round((enrolled / 50) * 100));
+    const isFull = enrolled >= 50;
+    return {
+      ...ws,
+      enrolled,
+      remaining,
+      percent,
+      isFull,
+    };
+  });
 
   // 1. Render Login Screen
   if (!isAuthenticated) {
@@ -376,6 +408,90 @@ export default function AdminPage() {
               {storageSource === "database" ? "PostgreSQL (Prisma)" : "Memory Fallback"}
             </span>
             <span className="text-[11px] text-zinc-500 block">Storage engine</span>
+          </div>
+        </div>
+
+        {/* Workshop Capacity & Seat Tracker (Strict 50-Seat Limit, FCFS) */}
+        <div className="bg-[#11131c] border border-zinc-800 rounded-2xl p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-zinc-800/80">
+            <div>
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-amber-400" />
+                <h2 className="text-sm font-bold text-white">Workshop Capacity Tracker</h2>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-300 border border-zinc-700/60">
+                  Strict 50 Seats Cap • First-Come, First-Served
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Live monitoring of seat occupancy across all 8 clinical simulation workshops. Click any workshop card to filter delegates.
+              </p>
+            </div>
+
+            {selectedWorkshopFilter && (
+              <button
+                onClick={() => setSelectedWorkshopFilter(null)}
+                className="self-start sm:self-auto px-2.5 py-1 rounded-lg text-[11px] font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 flex items-center gap-1.5 transition-colors"
+              >
+                <span>Filtered by: <strong>{selectedWorkshopFilter}</strong></span>
+                <X className="w-3 h-3 text-zinc-400" />
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {workshopStats.map((ws) => {
+              const isFiltered = selectedWorkshopFilter === ws.id;
+              return (
+                <div
+                  key={ws.id}
+                  onClick={() =>
+                    setSelectedWorkshopFilter(isFiltered ? null : ws.id)
+                  }
+                  className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                    isFiltered
+                      ? "bg-zinc-800 border-white text-white shadow-lg"
+                      : "bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700 text-zinc-300"
+                  }`}
+                  title={`Click to filter table by ${ws.name}`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-white truncate max-w-[150px]">{ws.name}</span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        ws.isFull
+                          ? "bg-red-950 text-red-400 border border-red-500/30"
+                          : ws.remaining <= 10
+                          ? "bg-amber-950 text-amber-300 border border-amber-500/30"
+                          : "bg-emerald-950 text-emerald-300 border border-emerald-500/30"
+                      }`}
+                    >
+                      {ws.isFull ? "SOLD OUT" : `${ws.remaining} left`}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-zinc-400 block mb-2">{ws.dept}</span>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                      <span>Occupancy</span>
+                      <span className="font-mono font-bold text-white">{ws.enrolled} / 50 ({ws.percent}%)</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          ws.isFull
+                            ? "bg-red-500"
+                            : ws.remaining <= 10
+                            ? "bg-amber-400"
+                            : "bg-emerald-400"
+                        }`}
+                        style={{ width: `${ws.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

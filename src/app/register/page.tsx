@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -17,9 +17,24 @@ import {
   X,
   FileCheck,
   Camera,
+  AlertCircle,
+  AlertTriangle,
+  Users,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { conferenceData } from "@/data/conferenceData";
+
+interface WorkshopCap {
+  id: string;
+  name: string;
+  department: string;
+  enrolled: number;
+  remaining: number;
+  limit: number;
+  isFull: boolean;
+}
 
 export default function RegisterPage() {
   const [delegateType, setDelegateType] = useState<"maulanian" | "non-maulanian">("maulanian");
@@ -39,7 +54,38 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredPass, setRegisteredPass] = useState<any | null>(null);
 
+  // Workshop capacity state (50 seats limit per workshop)
+  const [capacities, setCapacities] = useState<Record<string, WorkshopCap>>({});
+  const [loadingCapacities, setLoadingCapacities] = useState(true);
+  const [capacityError, setCapacityError] = useState<string | null>(null);
+
+  const fetchCapacities = async () => {
+    try {
+      const res = await fetch("/api/workshops", { cache: "no-store" });
+      const data = await res.json();
+      if (data.success && data.capacities) {
+        setCapacities(data.capacities);
+      }
+    } catch (err) {
+      console.error("Failed to fetch workshop capacities", err);
+    } finally {
+      setLoadingCapacities(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCapacities();
+  }, []);
+
   const toggleEvent = (eventId: string) => {
+    setCapacityError(null);
+    const cap = capacities[eventId];
+    if (cap && cap.isFull && !selectedEvents.includes(eventId)) {
+      setCapacityError(
+        `Workshop '${cap.name}' has reached its maximum capacity of 50 seats (Sold Out). Registrations are strictly first-come, first-served.`
+      );
+      return;
+    }
     setSelectedEvents((prev) =>
       prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
     );
@@ -162,7 +208,12 @@ export default function RegisterPage() {
           // ignore
         }
       } else {
-        alert(json.error || "Failed to process registration");
+        if (json.code === "WORKSHOP_FULL") {
+          setCapacityError(json.error);
+          fetchCapacities();
+        } else {
+          alert(json.error || "Failed to process registration");
+        }
       }
     } catch {
       // Offline / fallback simulated pass
@@ -410,106 +461,263 @@ export default function RegisterPage() {
               </div>
 
               {/* Event selection */}
-              <div className="space-y-3 pt-3 border-t border-zinc-800">
-                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block">
-                  2. Select Events &amp; Workshops
-                </span>
-
-                <div className="grid grid-cols-1 gap-2 text-xs">
-                  {/* MAFIA */}
-                  <div
-                    onClick={() => toggleEvent("the-boardroom")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("the-boardroom")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
+              <div className="space-y-5 pt-3 border-t border-zinc-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
+                    2. Select Events &amp; Workshops
+                  </span>
+                  <button
+                    type="button"
+                    onClick={fetchCapacities}
+                    className="text-[11px] text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
+                    title="Refresh live seats"
                   >
+                    <RefreshCw className={`w-3 h-3 ${loadingCapacities ? "animate-spin" : ""}`} />
+                    <span>Live Seat Status</span>
+                  </button>
+                </div>
+
+                {/* Capacity Error Banner */}
+                {capacityError && (
+                  <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-medium text-white block">The Boardroom (MAFIA)</span>
-                      <span className="text-[11px] text-zinc-500">18th Nov • Problem-solving GD &amp; PI</span>
+                      <strong className="block text-white">Capacity Limit Reached</strong>
+                      <p>{capacityError}</p>
                     </div>
-                    <span className="font-semibold text-zinc-200">₹99</span>
                   </div>
+                )}
 
-                  <div
-                    onClick={() => toggleEvent("business-bootcamp")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("business-bootcamp")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-white block">Business Bootcamp for Medicos</span>
-                      <span className="text-[11px] text-zinc-500">19th &amp; 20th Nov • Clinic &amp; Startup Plan</span>
+                {/* Section A: Clinical Simulation Workshops (Strict 50 seats cap, FCFS) */}
+                <div className="space-y-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-zinc-800/60">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white">Clinical Simulation Workshops</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                        50 Seats Cap • First-Come, First-Served
+                      </span>
                     </div>
-                    <span className="font-semibold text-zinc-200">₹349</span>
-                  </div>
-
-                  <div
-                    onClick={() => toggleEvent("venture-wars")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("venture-wars")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-white block">Venture Wars</span>
-                      <span className="text-[11px] text-zinc-500">20th Nov • Startup Strategy Battle</span>
-                    </div>
-                    <span className="font-semibold text-zinc-200">₹249/team</span>
-                  </div>
-
-                  {/* Academic Events with policy pricing */}
-                  <div
-                    onClick={() => toggleEvent("medventure")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("medventure")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-white block">MedVenture (Medical Game Show)</span>
-                      <span className="text-[11px] text-zinc-500">18th Nov • ER House simulation</span>
-                    </div>
-                    <span className="font-semibold text-zinc-200">
-                      {delegateType === "maulanian" ? "FREE" : "₹50"}
+                    <span className="text-[10px] text-zinc-400">
+                      Wet labs &amp; high-fidelity mannequin simulations
                     </span>
                   </div>
 
-                  <div
-                    onClick={() => toggleEvent("rickthinking-reviews")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("rickthinking-reviews")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-white block">RickThinking Reviews</span>
-                      <span className="text-[11px] text-zinc-500">Online • Creative Ideation</span>
-                    </div>
-                    <span className="font-semibold text-zinc-200">
-                      {delegateType === "maulanian" ? "FREE" : "₹50"}
-                    </span>
+                  <div className="grid grid-cols-1 gap-2 text-xs">
+                    {[
+                      {
+                        id: "code-nebula",
+                        name: "CODE NEBULA",
+                        dept: "Anaesthesia",
+                        desc: "Fundamentals of Anaesthesia & Airway Management",
+                        date: "18th Nov • 11:00 AM – 3:30 PM",
+                      },
+                      {
+                        id: "know-your-knots",
+                        name: "KNOW YOUR KNOTS",
+                        dept: "Surgery",
+                        desc: "Basic Surgical Skills, Knot Tying & Suturing",
+                        date: "18th & 19th Nov",
+                      },
+                      {
+                        id: "optic-odyssey",
+                        name: "THE OPTIC ODYSSEY",
+                        dept: "Ophthalmology",
+                        desc: "Clinical Pearls in Ophthalmology & Goat's Eye Suturing",
+                        date: "19th Nov • 8:00 AM – 5:00 PM",
+                      },
+                      {
+                        id: "rhythm-unravelled",
+                        name: "RHYTHM UNRAVELLED",
+                        dept: "Medicine",
+                        desc: "ECG Masterclass & Waveform Interpretation",
+                        date: "19th Nov • 8:30 AM – 3:30 PM",
+                      },
+                      {
+                        id: "genesis-protocol",
+                        name: "GENESIS PROTOCOL",
+                        dept: "OBGYN",
+                        desc: "High-Risk Obstetrics & Neonatal Resuscitation (NRP)",
+                        date: "20th Nov • 8:30 AM – 4:00 PM",
+                      },
+                      {
+                        id: "skeletal-frontier",
+                        name: "SKELETAL FRONTIER",
+                        dept: "Orthopaedics",
+                        desc: "Orthopaedic Trauma, Cast Application & Splinting",
+                        date: "20th Nov • 9:00 AM – 4:00 PM",
+                      },
+                      {
+                        id: "echoes-of-equilibrium",
+                        name: "ECHOES OF EQUILIBRIUM",
+                        dept: "Critical Care",
+                        desc: "Pediatric Critical Care Ultrasound & POCUS",
+                        date: "20th Nov • 8:30 AM – 2:00 PM",
+                      },
+                      {
+                        id: "molecules-in-motion",
+                        name: "MOLECULES IN MOTION",
+                        dept: "Biochemistry",
+                        desc: "Hands-on Lab Medicine & Advanced Diagnostic Modules",
+                        date: "19th Nov • 9:00 AM – 1:00 PM",
+                        specialRule: true,
+                      },
+                    ].map((ws) => {
+                      const cap = capacities[ws.id];
+                      const isFull = cap?.isFull || false;
+                      const isSelected = selectedEvents.includes(ws.id);
+                      const remaining = cap ? cap.remaining : 50;
+
+                      return (
+                        <div
+                          key={ws.id}
+                          onClick={() => {
+                            if (!isFull) toggleEvent(ws.id);
+                          }}
+                          className={`p-3 rounded-xl border transition-all ${
+                            isFull
+                              ? "bg-zinc-950/60 border-zinc-900 opacity-60 cursor-not-allowed"
+                              : isSelected
+                              ? "bg-zinc-800 border-white text-white cursor-pointer shadow-md"
+                              : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200 cursor-pointer hover:border-zinc-700"
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="font-semibold text-white">{ws.name}</span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300">
+                                  {ws.dept}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-zinc-400">{ws.desc}</p>
+                              <span className="text-[10px] text-zinc-500 block mt-0.5">{ws.date}</span>
+                            </div>
+
+                            <div className="flex items-center sm:flex-col items-end gap-1.5 shrink-0">
+                              {/* Capacity Badge */}
+                              {isFull ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">
+                                  SOLD OUT (50/50)
+                                </span>
+                              ) : remaining <= 10 ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                  Only {remaining} seats left (FCFS)
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-850 text-zinc-300 border border-zinc-700/60">
+                                  {remaining} / 50 seats left
+                                </span>
+                              )}
+
+                              {/* Fee Label */}
+                              <span className="text-[11px] font-semibold text-zinc-300">
+                                {ws.specialRule ? "FREE (if 2+ WS) / ₹100" : "Included in Pass"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Section B: Academic & Research Events */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between pb-1 border-b border-zinc-800/60">
+                    <span className="text-xs font-bold text-white">Academic &amp; Case Competitions</span>
+                    <span className="text-[10px] text-zinc-400">Open to all MBBS batches</span>
                   </div>
 
-                  <div
-                    onClick={() => toggleEvent("molecules-in-motion")}
-                    className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                      selectedEvents.includes("molecules-in-motion")
-                        ? "bg-zinc-800 border-white text-white"
-                        : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-white block">Molecules in Motion (Biochemistry)</span>
-                      <span className="text-[11px] text-zinc-500">FREE if 2+ workshops, else ₹100</span>
+                  <div className="grid grid-cols-1 gap-2 text-xs">
+                    <div
+                      onClick={() => toggleEvent("medventure")}
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                        selectedEvents.includes("medventure")
+                          ? "bg-zinc-800 border-white text-white"
+                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-white block">MedVenture (Medical Game Show)</span>
+                        <span className="text-[11px] text-zinc-500">18th Nov • Emergency ER House simulation</span>
+                      </div>
+                      <span className="font-semibold text-zinc-200">
+                        {delegateType === "maulanian" ? "FREE" : "₹50"}
+                      </span>
                     </div>
-                    <span className="font-semibold text-zinc-200">Bundle Rule</span>
+
+                    <div
+                      onClick={() => toggleEvent("rickthinking-reviews")}
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                        selectedEvents.includes("rickthinking-reviews")
+                          ? "bg-zinc-800 border-white text-white"
+                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-white block">RickThinking Reviews</span>
+                        <span className="text-[11px] text-zinc-500">Online • Creative medical review &amp; ideation</span>
+                      </div>
+                      <span className="font-semibold text-zinc-200">
+                        {delegateType === "maulanian" ? "FREE" : "₹50"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section C: Business & Leadership Events (MAFIA) */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between pb-1 border-b border-zinc-800/60">
+                    <span className="text-xs font-bold text-white">Business &amp; Healthcare Innovation (MAFIA)</span>
+                    <span className="text-[10px] text-zinc-400">Finance &amp; MedTech leadership</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 text-xs">
+                    <div
+                      onClick={() => toggleEvent("the-boardroom")}
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                        selectedEvents.includes("the-boardroom")
+                          ? "bg-zinc-800 border-white text-white"
+                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-white block">The Boardroom</span>
+                        <span className="text-[11px] text-zinc-500">18th Nov • Problem-solving GD &amp; PI</span>
+                      </div>
+                      <span className="font-semibold text-zinc-200">₹99</span>
+                    </div>
+
+                    <div
+                      onClick={() => toggleEvent("business-bootcamp")}
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                        selectedEvents.includes("business-bootcamp")
+                          ? "bg-zinc-800 border-white text-white"
+                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-white block">Business Bootcamp for Medicos</span>
+                        <span className="text-[11px] text-zinc-500">19th &amp; 20th Nov • Clinic &amp; Startup Plan (2-Day)</span>
+                      </div>
+                      <span className="font-semibold text-zinc-200">₹349</span>
+                    </div>
+
+                    <div
+                      onClick={() => toggleEvent("venture-wars")}
+                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                        selectedEvents.includes("venture-wars")
+                          ? "bg-zinc-800 border-white text-white"
+                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-white block">Venture Wars</span>
+                        <span className="text-[11px] text-zinc-500">20th Nov • Startup Strategy Pitch Battle</span>
+                      </div>
+                      <span className="font-semibold text-zinc-200">₹249/team</span>
+                    </div>
                   </div>
                 </div>
               </div>

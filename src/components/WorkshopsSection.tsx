@@ -53,11 +53,16 @@ export const WorkshopsSection: React.FC = () => {
         <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 mb-8 text-xs text-zinc-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="font-semibold text-white block">
-                Workshop Form Release Schedule (5th November 2026)
-              </span>
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="font-semibold text-white block">
+                  Workshop Seat Allocation Rule &amp; Schedule
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                  Strict 50 Seats / Workshop
+                </span>
+              </div>
               <p className="text-[11px] text-zinc-400">
-                Seats are limited and allotted on a first-come, first-served basis.
+                Every hands-on workshop is strictly limited to 50 delegates and allotted on a first-come, first-served basis.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
@@ -115,9 +120,14 @@ export const WorkshopsSection: React.FC = () => {
               <div>
                 {/* Department & Date */}
                 <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
-                    {workshop.department}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
+                      {workshop.department}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 border border-zinc-800 text-zinc-400">
+                      50 Seats (FCFS)
+                    </span>
+                  </div>
                   <span className="text-[11px]">{workshop.display_date}</span>
                 </div>
 
