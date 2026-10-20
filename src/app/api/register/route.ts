@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { conferenceData } from "@/data/conferenceData";
+import { saveRegistration } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Server-side fee calculation (prevents client tamper)
+    // 2. Server-side fee calculation (prevents client tampering)
     let calculatedTotal = 0;
     const isMAMC = delegateType === "maulanian";
 
@@ -51,29 +52,32 @@ export async function POST(req: NextRequest) {
     // 3. Generate unique Ticket/Registration ID for 2026
     const ticketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-    // 4. Return registration payload
+    // 4. Persist to Database (Prisma / PostgreSQL)
+    const { record, source } = await saveRegistration({
+      ticketId,
+      fullName,
+      email,
+      phone,
+      college,
+      yearOfStudy,
+      delegateType,
+      selectedEvents,
+      amountPayable: calculatedTotal,
+      currency: "INR",
+      status: calculatedTotal === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
+    });
+
     return NextResponse.json(
       {
         success: true,
         message: "Registration recorded successfully",
-        data: {
-          ticketId,
-          fullName,
-          email,
-          phone,
-          college,
-          yearOfStudy,
-          delegateType,
-          selectedEvents,
-          amountPayable: calculatedTotal,
-          currency: "INR",
-          status: calculatedTotal === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
-          createdAt: new Date().toISOString(),
-        },
+        storageSource: source,
+        data: record,
       },
       { status: 200 }
     );
   } catch (error: any) {
+    console.error("Registration route error:", error);
     return NextResponse.json(
       { error: "Internal server error during registration", details: error.message },
       { status: 500 }

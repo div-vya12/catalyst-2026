@@ -29,36 +29,28 @@ export const CheckRegistrationModal: React.FC<CheckRegistrationModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setLoading(true);
     setError(null);
+    setResult(null);
 
-    // Simulate lookup from backend DB / cache
-    setTimeout(() => {
-      setLoading(false);
-      const clean = query.trim().toUpperCase();
+    try {
+      const res = await fetch(`/api/check-registration?query=${encodeURIComponent(query.trim())}`);
+      const data = await res.json();
 
-      // Demo match or general preview match
-      if (clean.length >= 3) {
-        setResult({
-          ticketId: clean.startsWith("CAT26") ? clean : `CAT26-${clean.slice(0, 4)}`,
-          name: "Medical Student Delegate",
-          college: "Maulana Azad Medical College (MAMC)",
-          category: "Maulanian (MBBS)",
-          status: "Confirmed",
-          dates: "18th – 20th November 2026",
-          registeredEvents: [
-            "Code Nebula (Anaesthesia Simulation)",
-            "Case Files (Poster Presentation)",
-          ],
-        });
+      if (res.ok && data.success) {
+        setResult(data.data);
       } else {
-        setError("No registration found. Please check your Ticket ID or Email.");
+        setError(data.error || "No registration found with those details.");
       }
-    }, 400);
+    } catch (err: any) {
+      setError("Unable to connect to registration server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,7 +73,7 @@ export const CheckRegistrationModal: React.FC<CheckRegistrationModalProps> = ({
           Check Existing Registration
         </h3>
         <p className="text-xs text-zinc-400 mb-6">
-          Enter your Ticket ID, registered email, or mobile number to retrieve your pass status.
+          Enter your Ticket ID (e.g. CAT26-XXXX), registered email, or mobile number to retrieve your pass status.
         </p>
 
         <form onSubmit={handleSearch} className="mb-6">
@@ -91,7 +83,7 @@ export const CheckRegistrationModal: React.FC<CheckRegistrationModalProps> = ({
               <input
                 type="text"
                 required
-                placeholder="e.g. CAT26-89A1 or student@mamc.ac.in"
+                placeholder="e.g. CAT26-XXXX or student@mamc.ac.in"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -129,34 +121,35 @@ export const CheckRegistrationModal: React.FC<CheckRegistrationModalProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-white font-semibold">
                 <User className="w-3.5 h-3.5 text-zinc-400" />
-                <span>{result.name}</span>
+                <span>{result.fullName || result.name}</span>
               </div>
               <div className="flex items-center gap-1.5 text-zinc-400">
                 <Building className="w-3.5 h-3.5 text-zinc-500" />
-                <span>{result.college}</span>
+                <span>{result.college} ({result.delegateType || result.category})</span>
               </div>
               <div className="flex items-center gap-1.5 text-zinc-400">
                 <Calendar className="w-3.5 h-3.5 text-zinc-500" />
-                <span>{result.dates}</span>
+                <span>18th – 20th November 2026</span>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-zinc-800">
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider block mb-1">
-                Allocated Sessions:
-              </span>
-              <ul className="space-y-1 text-zinc-300">
-                {result.registeredEvents.map((ev: string, idx: number) => (
-                  <li key={idx} className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span>{ev}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {result.selectedEvents && (
+              <div className="pt-2 border-t border-zinc-800">
+                <span className="text-[11px] text-zinc-500 uppercase tracking-wider block mb-1">
+                  Registered Events ({result.selectedEvents.length}):
+                </span>
+                <div className="flex flex-wrap gap-1.5 text-[11px] text-zinc-300">
+                  {result.selectedEvents.map((ev: string, idx: number) => (
+                    <span key={idx} className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                      {ev}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <button
-              onClick={() => alert("Digital pass download initiated.")}
+              onClick={() => alert(`Official Delegate Pass for ${result.fullName || result.name} (${result.ticketId}) downloaded.`)}
               className="w-full mt-2 py-2 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-white transition-colors flex items-center justify-center gap-1.5"
             >
               <Download className="w-3.5 h-3.5" />

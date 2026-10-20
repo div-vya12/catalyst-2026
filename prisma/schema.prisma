@@ -1,0 +1,29 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Registration {
+  id             String   @id @default(cuid())
+  ticketId       String   @unique
+  fullName       String
+  email          String
+  phone          String
+  college        String
+  yearOfStudy    String
+  delegateType   String
+  selectedEvents String[]
+  amountPayable  Int      @default(0)
+  currency       String   @default("INR")
+  status         String   @default("CONFIRMED")
+  paymentId      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([email])
+  @@index([phone])
+}
