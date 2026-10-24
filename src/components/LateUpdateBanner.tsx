@@ -11,7 +11,7 @@ export const LateUpdateBanner: React.FC = () => {
   if (dismissed) return null;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-8 mb-12 relative z-20">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-12 relative z-20">
       <div className="rounded-xl bg-zinc-900 border border-zinc-700/80 p-4 text-zinc-300 text-xs">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2.5">
