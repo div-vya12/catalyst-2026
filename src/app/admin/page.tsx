@@ -35,6 +35,8 @@ const CLINICAL_WORKSHOPS = [
   { id: "skeletal-frontier", name: "SKELETAL FRONTIER", dept: "Orthopaedics" },
   { id: "echoes-of-equilibrium", name: "ECHOES OF EQUILIBRIUM", dept: "Critical Care" },
   { id: "molecules-in-motion", name: "MOLECULES IN MOTION", dept: "Biochemistry" },
+  { id: "ai-in-medicine", name: "AI IN MEDICINE", dept: "Health Tech & AI" },
+  { id: "prompt-engineering", name: "PROMPT ENGINEERING", dept: "Generative AI" },
 ] as const;
 
 interface RegistrationRecord {

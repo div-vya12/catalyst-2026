@@ -34,14 +34,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenCheckRegistration }) => {
 
       {/* Open hero container - NOT inside a card box */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center flex flex-col items-center">
-        {/* Eyebrow badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs sm:text-xs font-medium tracking-wide mb-6 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{conference.institution}</span>
-          <span className="text-zinc-600">•</span>
-          <span className="text-zinc-400">{conference.type}</span>
-        </div>
-
         {/* Big Stylized CATALYST 2026 Heading */}
         <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.5rem] font-black tracking-tighter text-white uppercase mb-4 leading-[0.95] select-none">
           CATALYST{" "}
@@ -49,11 +41,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenCheckRegistration }) => {
             2026
           </span>
         </h1>
-
-        {/* Tagline */}
-        <p className="text-xs sm:text-sm md:text-base font-semibold text-zinc-400 uppercase tracking-[0.25em] mb-4">
-          {conference.tagline}
-        </p>
 
         {/* Clean Description */}
         <p className="text-xs sm:text-base text-zinc-300 max-w-2xl mx-auto leading-relaxed mb-6 font-normal">
@@ -89,7 +76,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenCheckRegistration }) => {
 
             {/* Secondary Action: Explore Events */}
             <a
-              href="#workshops"
+              href="#events"
               className="group flex items-center justify-center gap-2.5 px-7 py-4 sm:py-4.5 rounded-2xl bg-zinc-900/90 hover:bg-zinc-800 text-white border-2 border-zinc-700 hover:border-zinc-400 font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-200 active:scale-[0.98]"
             >
               <Compass className="w-4 h-4 text-zinc-300 group-hover:rotate-45 transition-transform" />
@@ -108,22 +95,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenCheckRegistration }) => {
               <span>Check Existing Registration</span>
             </button>
           </div>
-        </div>
-
-        {/* Minimal Key Facts Strip */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-zinc-400">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
-            Open to MBBS 1st Year to Interns
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
-            8 Clinical Wet-Lab &amp; Simulation Workshops
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
-            MASS &amp; MAFIA Official Events
-          </span>
         </div>
       </div>
     </section>

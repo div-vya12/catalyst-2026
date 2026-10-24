@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { conferenceData } from "@/data/conferenceData";
+import { CatalystLogo } from "./CatalystLogo";
 
 interface NavbarProps {
   onOpenCheckRegistration?: () => void;
@@ -23,9 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCheckRegistration }) => {
 
   const navLinks = [
     { label: "Overview", href: "#overview" },
-    { label: "Workshops", href: "#workshops" },
-    { label: "Competitions", href: "#academic" },
-    { label: "MAFIA Events", href: "#mafia" },
+    { label: "Events", href: "#events" },
     { label: "Schedule", href: "#schedule" },
     { label: "Accommodation", href: "#accommodation" },
   ];
@@ -42,9 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCheckRegistration }) => {
         <div className="flex items-center justify-between">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-sm text-white">
-              C
-            </div>
+            <CatalystLogo className="w-8 h-8 rounded-lg shrink-0" size={32} />
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-sm sm:text-base text-white tracking-tight">

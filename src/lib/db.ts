@@ -127,6 +127,8 @@ export const CLINICAL_WORKSHOPS = [
   { id: "skeletal-frontier", name: "SKELETAL FRONTIER", department: "Orthopaedics" },
   { id: "echoes-of-equilibrium", name: "ECHOES OF EQUILIBRIUM", department: "Paediatrics & Critical Care" },
   { id: "molecules-in-motion", name: "MOLECULES IN MOTION", department: "Biochemistry" },
+  { id: "ai-in-medicine", name: "AI IN MEDICINE", department: "Health Tech & AI" },
+  { id: "prompt-engineering", name: "PROMPT ENGINEERING", department: "Generative AI" },
 ] as const;
 
 export interface WorkshopCapacity {

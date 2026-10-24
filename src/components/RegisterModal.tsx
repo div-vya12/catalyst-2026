@@ -49,28 +49,9 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
     );
   };
 
-  // Fee calculation
+  // Fee calculation - Uniform free pass
   const calculateTotal = () => {
-    let total = 0;
-    const isMAMC = delegateType === "maulanian";
-
-    // Count selected workshops for the biochem discount rule
-    const workshopCount = selectedEvents.filter((id) =>
-      conferenceData.workshops.some((w) => w.id === id)
-    ).length;
-
-    selectedEvents.forEach((id) => {
-      if (id === "the-boardroom") total += 99;
-      if (id === "business-bootcamp") total += 349;
-      if (id === "venture-wars") total += 249;
-      if (id === "medventure") total += isMAMC ? 0 : 50;
-      if (id === "rickthinking-reviews") total += isMAMC ? 0 : 50;
-      if (id === "molecules-in-motion") {
-        total += workshopCount >= 2 ? 0 : 100;
-      }
-    });
-
-    return total;
+    return 0;
   };
 
   const handleSimulatePayment = (e: React.FormEvent) => {
@@ -257,53 +238,83 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
                   Select Events to Register
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  {/* MAFIA */}
+                  {/* Finance Society Events */}
                   <div
-                    onClick={() => toggleEvent("the-boardroom")}
+                    onClick={() => toggleEvent("ai-in-medicine")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                      selectedEvents.includes("the-boardroom")
+                      selectedEvents.includes("ai-in-medicine")
                         ? "bg-emerald-950/60 border-emerald-400"
                         : "bg-slate-900/60 border-slate-800"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white">The Boardroom (MAFIA)</span>
-                      <span className="text-emerald-400 font-bold">₹99</span>
+                      <span className="font-semibold text-white">AI in Medicine</span>
+                      <span className="text-emerald-400 font-bold">FREE</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">1st Dec • GD &amp; PI</span>
+                    <span className="text-[11px] text-slate-400">19th Nov • Diagnostic AI</span>
                   </div>
 
                   <div
-                    onClick={() => toggleEvent("business-bootcamp")}
+                    onClick={() => toggleEvent("prompt-engineering")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                      selectedEvents.includes("business-bootcamp")
+                      selectedEvents.includes("prompt-engineering")
                         ? "bg-emerald-950/60 border-emerald-400"
                         : "bg-slate-900/60 border-slate-800"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white">Business Bootcamp</span>
-                      <span className="text-emerald-400 font-bold">₹349</span>
+                      <span className="font-semibold text-white">Prompt Engineering</span>
+                      <span className="text-emerald-400 font-bold">FREE</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">2nd &amp; 3rd Dec • 2-Day</span>
+                    <span className="text-[11px] text-slate-400">20th Nov • Clinical LLMs</span>
                   </div>
 
                   <div
-                    onClick={() => toggleEvent("venture-wars")}
+                    onClick={() => toggleEvent("model-niti-aayog")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                      selectedEvents.includes("venture-wars")
+                      selectedEvents.includes("model-niti-aayog")
                         ? "bg-emerald-950/60 border-emerald-400"
                         : "bg-slate-900/60 border-slate-800"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white">Venture Wars</span>
-                      <span className="text-emerald-400 font-bold">₹249/team</span>
+                      <span className="font-semibold text-white">Model NITI Aayog</span>
+                      <span className="text-emerald-400 font-bold">FREE</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">3rd Dec • Startup Battle</span>
+                    <span className="text-[11px] text-slate-400">18th Nov • Policy Simulation</span>
                   </div>
 
-                  {/* Academic with special fee */}
+                  <div
+                    onClick={() => toggleEvent("guesstimate")}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                      selectedEvents.includes("guesstimate")
+                        ? "bg-emerald-950/60 border-emerald-400"
+                        : "bg-slate-900/60 border-slate-800"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-white">Guesstimate</span>
+                      <span className="text-emerald-400 font-bold">FREE</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">19th Nov • Market Sizing</span>
+                  </div>
+
+                  <div
+                    onClick={() => toggleEvent("hackathon")}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                      selectedEvents.includes("hackathon")
+                        ? "bg-emerald-950/60 border-emerald-400"
+                        : "bg-slate-900/60 border-slate-800"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-white">Hackathon</span>
+                      <span className="text-emerald-400 font-bold">FREE</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">20th Nov • MedTech Innovation</span>
+                  </div>
+
+                  {/* Academic Events */}
                   <div
                     onClick={() => toggleEvent("medventure")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
@@ -314,11 +325,9 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-white">MedVenture (Game Show)</span>
-                      <span className="text-cyan-400 font-bold">
-                        {delegateType === "maulanian" ? "FREE" : "₹50"}
-                      </span>
+                      <span className="text-cyan-400 font-bold">FREE</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">1st Dec • ER House simulation</span>
+                    <span className="text-[11px] text-slate-400">18th Nov • ER House simulation</span>
                   </div>
 
                   <div
@@ -331,14 +340,11 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-white">RickThinking Reviews</span>
-                      <span className="text-cyan-400 font-bold">
-                        {delegateType === "maulanian" ? "FREE" : "₹50"}
-                      </span>
+                      <span className="text-cyan-400 font-bold">FREE</span>
                     </div>
                     <span className="text-[11px] text-slate-400">Online • Creative ideation</span>
                   </div>
 
-                  {/* Biochemistry with bundle rule */}
                   <div
                     onClick={() => toggleEvent("molecules-in-motion")}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
@@ -349,10 +355,10 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-white">Molecules In Motion</span>
-                      <span className="text-cyan-400 font-bold">Special</span>
+                      <span className="text-cyan-400 font-bold">FREE</span>
                     </div>
                     <span className="text-[11px] text-slate-400">
-                      FREE if 2+ workshops, else ₹100
+                      20th Nov • Lab Medicine
                     </span>
                   </div>
                 </div>

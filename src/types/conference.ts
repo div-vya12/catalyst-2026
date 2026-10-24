@@ -183,6 +183,14 @@ export interface MafiaEventsSection {
   contacts: ContactPerson[];
 }
 
+export interface FinanceSocietySection {
+  organizer: string;
+  instagram: string;
+  workshops: Workshop[];
+  competitions: AcademicEvent[];
+  contacts: ContactPerson[];
+}
+
 export interface AccommodationInfo {
   title: string;
   description: string;
@@ -193,7 +201,7 @@ export interface AccommodationInfo {
 export interface ScheduleItem {
   name: string;
   time: string;
-  type: "Workshop" | "Academic Event" | "MAFIA Event";
+  type: string;
 }
 
 export interface ScheduleDay {
@@ -219,6 +227,7 @@ export interface ConferenceData {
   workshops: Workshop[];
   academic_events: AcademicEvent[];
   mafia_events: MafiaEventsSection;
+  finance_events?: FinanceSocietySection;
   accommodation: AccommodationInfo;
   schedule_overview: ScheduleDay[];
 }

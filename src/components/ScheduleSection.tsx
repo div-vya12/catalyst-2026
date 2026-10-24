@@ -17,9 +17,9 @@ export const ScheduleSection: React.FC = () => {
 
   const filteredEvents = currentDay.events.filter((item) => {
     if (selectedFilter === "All") return true;
-    if (selectedFilter === "Workshops") return item.type === "Workshop";
-    if (selectedFilter === "Academic") return item.type === "Academic Event";
-    if (selectedFilter === "MAFIA") return item.type === "MAFIA Event";
+    if (selectedFilter === "Workshops") return item.type.includes("Workshop");
+    if (selectedFilter === "Academic") return item.type.includes("Academic");
+    if (selectedFilter === "MAFIA") return item.type.includes("Finance") || item.type.includes("MAFIA");
     return true;
   });
 

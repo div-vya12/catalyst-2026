@@ -3,10 +3,7 @@
 import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { LateUpdateBanner } from "@/components/LateUpdateBanner";
-import { WorkshopsSection } from "@/components/WorkshopsSection";
-import { AcademicEventsSection } from "@/components/AcademicEventsSection";
-import { MafiaSection } from "@/components/MafiaSection";
+import { EventsSection } from "@/components/EventsSection";
 import { ScheduleSection } from "@/components/ScheduleSection";
 import { AccommodationSection } from "@/components/AccommodationSection";
 import { Footer } from "@/components/Footer";
@@ -20,20 +17,11 @@ export default function Home() {
       {/* Navbar with minimal design and primary Register link */}
       <Navbar onOpenCheckRegistration={() => setIsCheckRegOpen(true)} />
 
-      {/* Hero with interactive touch/cursor canvas, clean card, and 3 landing options */}
+      {/* Hero with interactive touch/cursor canvas and big stylized title */}
       <Hero onOpenCheckRegistration={() => setIsCheckRegOpen(true)} />
 
-      {/* Minimal Policy Update Banner */}
-      <LateUpdateBanner />
-
-      {/* 8 Clinical Workshops */}
-      <WorkshopsSection />
-
-      {/* Academic Competitions (MASS) */}
-      <AcademicEventsSection />
-
-      {/* MAFIA Business Events */}
-      <MafiaSection />
+      {/* Unified Pre-Classified Events Section */}
+      <EventsSection />
 
       {/* Conference Schedule (18th – 20th November 2026) */}
       <ScheduleSection />

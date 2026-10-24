@@ -12,6 +12,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { conferenceData } from "@/data/conferenceData";
+import { CatalystLogo } from "./CatalystLogo";
 
 export const Footer: React.FC = () => {
   const { conference } = conferenceData;
@@ -26,13 +27,16 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Col 1: Brand & College */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white text-base tracking-tight">
-                CATALYST 2026
-              </span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 font-medium">
-                MAMC
-              </span>
+            <div className="flex items-center gap-2.5">
+              <CatalystLogo className="w-7 h-7 rounded-lg shrink-0" size={28} />
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white text-base tracking-tight">
+                  CATALYST 2026
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 font-medium">
+                  MAMC
+                </span>
+              </div>
             </div>
 
             <p className="text-zinc-400 text-xs leading-relaxed">
@@ -63,18 +67,8 @@ export const Footer: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#workshops" className="hover:text-white transition-colors">
-                  8 Clinical Workshops
-                </a>
-              </li>
-              <li>
-                <a href="#academic" className="hover:text-white transition-colors">
-                  Academic Competitions
-                </a>
-              </li>
-              <li>
-                <a href="#mafia" className="hover:text-white transition-colors">
-                  MAFIA Business Events
+                <a href="#events" className="hover:text-white transition-colors">
+                  Events (Science &amp; Finance)
                 </a>
               </li>
               <li>

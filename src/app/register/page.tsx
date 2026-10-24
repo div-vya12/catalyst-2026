@@ -12,14 +12,11 @@ import {
   Phone,
   CheckCircle2,
   Download,
-  Image as ImageIcon,
   UploadCloud,
   X,
   FileCheck,
   Camera,
-  AlertCircle,
   AlertTriangle,
-  Users,
   RefreshCw,
   Sparkles,
 } from "lucide-react";
@@ -107,7 +104,6 @@ export default function RegisterPage() {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        // Compress using off-screen canvas (max 1000px, 0.75 JPEG quality)
         const canvas = document.createElement("canvas");
         let width = img.width;
         let height = img.height;
@@ -146,26 +142,9 @@ export default function RegisterPage() {
     }
   };
 
+  // Uniform pricing: No distinction of fees between Maulanians and non-Maulanians
   const calculateTotal = () => {
-    let total = 0;
-    const isMAMC = delegateType === "maulanian";
-
-    const workshopCount = selectedEvents.filter((id) =>
-      conferenceData.workshops.some((w) => w.id === id)
-    ).length;
-
-    selectedEvents.forEach((id) => {
-      if (id === "the-boardroom") total += 99;
-      if (id === "business-bootcamp") total += 349;
-      if (id === "venture-wars") total += 249;
-      if (id === "medventure") total += isMAMC ? 0 : 50;
-      if (id === "rickthinking-reviews") total += isMAMC ? 0 : 50;
-      if (id === "molecules-in-motion") {
-        total += workshopCount >= 2 ? 0 : 100;
-      }
-    });
-
-    return total;
+    return 0;
   };
 
   const totalFee = calculateTotal();
@@ -174,6 +153,11 @@ export default function RegisterPage() {
     e.preventDefault();
     if (!fullName || !email || !phone || !college) {
       alert("Please fill all required fields.");
+      return;
+    }
+
+    if (selectedEvents.length === 0) {
+      alert("Please select at least one event or workshop.");
       return;
     }
 
@@ -229,7 +213,7 @@ export default function RegisterPage() {
         collegeIdUrl,
         selectedEvents,
         amountPayable: totalFee,
-        status: totalFee === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
+        status: "CONFIRMED",
       });
     } finally {
       setIsSubmitting(false);
@@ -250,17 +234,11 @@ export default function RegisterPage() {
 
         {!registeredPass ? (
           <div className="bg-[#11131c] border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-            {/* Header */}
+            {/* Header - Clean, no short descriptive phrase or allocation rule */}
             <div className="border-b border-zinc-800 pb-5 mb-6">
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block mb-1">
-                Official Registration
-              </span>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-                CATALYST 2026 Registration
+                Registration
               </h1>
-              <p className="text-xs text-zinc-400">
-                Maulana Azad Medical College (MAMC), New Delhi • 18th – 20th November 2026
-              </p>
             </div>
 
             {/* Delegate Type Switcher */}
@@ -281,7 +259,7 @@ export default function RegisterPage() {
                   <span className="font-semibold text-xs sm:text-sm">Maulanian</span>
                   {delegateType === "maulanian" && <Check className="w-3.5 h-3.5 text-white" />}
                 </div>
-                <p className="text-[11px] text-zinc-400">Current MAMC student / intern</p>
+                <p className="text-[11px] text-zinc-400">MAMC student / intern</p>
               </button>
 
               <button
@@ -300,7 +278,7 @@ export default function RegisterPage() {
                   <span className="font-semibold text-xs sm:text-sm">Non-Maulanian</span>
                   {delegateType === "non-maulanian" && <Check className="w-3.5 h-3.5 text-white" />}
                 </div>
-                <p className="text-[11px] text-zinc-400">Other medical colleges across India</p>
+                <p className="text-[11px] text-zinc-400">Delegates from other medical colleges</p>
               </button>
             </div>
 
@@ -393,11 +371,9 @@ export default function RegisterPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs text-zinc-300 font-medium">
-                      College ID Card Photo (Image Verification)
+                      College ID Photo
                     </label>
-                    <span className="text-[11px] text-zinc-500">
-                      {delegateType === "maulanian" ? "Required for MAMC Free Waiver" : "Optional"}
-                    </span>
+                    <span className="text-[11px] text-zinc-500">Image Verification</span>
                   </div>
 
                   <input
@@ -425,7 +401,7 @@ export default function RegisterPage() {
                         {isCompressingImage ? "Processing photo..." : "Upload College ID Photo"}
                       </span>
                       <span className="text-[11px] text-zinc-500 mt-0.5">
-                        JPEG, PNG, or WebP (capture from mobile camera or select file)
+                        JPEG, PNG, or WebP
                       </span>
                     </label>
                   ) : (
@@ -442,7 +418,7 @@ export default function RegisterPage() {
                           </span>
                           <span className="text-[11px] text-emerald-400 flex items-center gap-1">
                             <FileCheck className="w-3 h-3" />
-                            <span>Photo attached &amp; compressed</span>
+                            <span>Photo attached</span>
                           </span>
                         </div>
                       </div>
@@ -461,7 +437,7 @@ export default function RegisterPage() {
               </div>
 
               {/* Event selection */}
-              <div className="space-y-5 pt-3 border-t border-zinc-800">
+              <div className="space-y-6 pt-3 border-t border-zinc-800">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
                     2. Select Events &amp; Workshops
@@ -488,235 +464,326 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {/* Section A: Clinical Simulation Workshops (Strict 50 seats cap, FCFS) */}
-                <div className="space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-zinc-800/60">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white">Clinical Simulation Workshops</span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
-                        50 Seats Cap • First-Come, First-Served
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-zinc-400">
-                      Wet labs &amp; high-fidelity mannequin simulations
-                    </span>
+                {/* ======================================================== */}
+                {/* 1. SCIENCE SOCIETY (MASS)                                */}
+                {/* ======================================================== */}
+                <div className="space-y-4">
+                  <div className="pb-1 border-b border-zinc-800">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Science Society (MASS)
+                    </h3>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 text-xs">
-                    {[
-                      {
-                        id: "code-nebula",
-                        name: "CODE NEBULA",
-                        dept: "Anaesthesia",
-                        desc: "Fundamentals of Anaesthesia & Airway Management",
-                        date: "18th Nov • 11:00 AM – 3:30 PM",
-                      },
-                      {
-                        id: "know-your-knots",
-                        name: "KNOW YOUR KNOTS",
-                        dept: "Surgery",
-                        desc: "Basic Surgical Skills, Knot Tying & Suturing",
-                        date: "18th & 19th Nov",
-                      },
-                      {
-                        id: "optic-odyssey",
-                        name: "THE OPTIC ODYSSEY",
-                        dept: "Ophthalmology",
-                        desc: "Clinical Pearls in Ophthalmology & Goat's Eye Suturing",
-                        date: "19th Nov • 8:00 AM – 5:00 PM",
-                      },
-                      {
-                        id: "rhythm-unravelled",
-                        name: "RHYTHM UNRAVELLED",
-                        dept: "Medicine",
-                        desc: "ECG Masterclass & Waveform Interpretation",
-                        date: "19th Nov • 8:30 AM – 3:30 PM",
-                      },
-                      {
-                        id: "genesis-protocol",
-                        name: "GENESIS PROTOCOL",
-                        dept: "OBGYN",
-                        desc: "High-Risk Obstetrics & Neonatal Resuscitation (NRP)",
-                        date: "20th Nov • 8:30 AM – 4:00 PM",
-                      },
-                      {
-                        id: "skeletal-frontier",
-                        name: "SKELETAL FRONTIER",
-                        dept: "Orthopaedics",
-                        desc: "Orthopaedic Trauma, Cast Application & Splinting",
-                        date: "20th Nov • 9:00 AM – 4:00 PM",
-                      },
-                      {
-                        id: "echoes-of-equilibrium",
-                        name: "ECHOES OF EQUILIBRIUM",
-                        dept: "Critical Care",
-                        desc: "Pediatric Critical Care Ultrasound & POCUS",
-                        date: "20th Nov • 8:30 AM – 2:00 PM",
-                      },
-                      {
-                        id: "molecules-in-motion",
-                        name: "MOLECULES IN MOTION",
-                        dept: "Biochemistry",
-                        desc: "Hands-on Lab Medicine & Advanced Diagnostic Modules",
-                        date: "19th Nov • 9:00 AM – 1:00 PM",
-                        specialRule: true,
-                      },
-                    ].map((ws) => {
-                      const cap = capacities[ws.id];
-                      const isFull = cap?.isFull || false;
-                      const isSelected = selectedEvents.includes(ws.id);
-                      const remaining = cap ? cap.remaining : 50;
+                  {/* 1A. Science Society - Workshops */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-zinc-300">Workshops</h4>
 
-                      return (
-                        <div
-                          key={ws.id}
-                          onClick={() => {
-                            if (!isFull) toggleEvent(ws.id);
-                          }}
-                          className={`p-3 rounded-xl border transition-all ${
-                            isFull
-                              ? "bg-zinc-950/60 border-zinc-900 opacity-60 cursor-not-allowed"
-                              : isSelected
-                              ? "bg-zinc-800 border-white text-white cursor-pointer shadow-md"
-                              : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200 cursor-pointer hover:border-zinc-700"
-                          }`}
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div>
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <span className="font-semibold text-white">{ws.name}</span>
-                                <span className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300">
-                                  {ws.dept}
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      {[
+                        {
+                          id: "code-nebula",
+                          name: "CODE NEBULA",
+                          dept: "Anaesthesia",
+                          desc: "Fundamentals of Anaesthesia & Airway Management",
+                          date: "18th Nov • 11:00 AM – 3:30 PM",
+                        },
+                        {
+                          id: "know-your-knots",
+                          name: "KNOW YOUR KNOTS",
+                          dept: "Surgery",
+                          desc: "Basic Surgical Skills, Knot Tying & Suturing",
+                          date: "18th & 19th Nov",
+                        },
+                        {
+                          id: "optic-odyssey",
+                          name: "THE OPTIC ODYSSEY",
+                          dept: "Ophthalmology",
+                          desc: "Clinical Pearls in Ophthalmology & Goat's Eye Suturing",
+                          date: "19th Nov • 8:00 AM – 5:00 PM",
+                        },
+                        {
+                          id: "rhythm-unravelled",
+                          name: "RHYTHM UNRAVELLED",
+                          dept: "Medicine",
+                          desc: "ECG Masterclass & Waveform Interpretation",
+                          date: "19th Nov • 8:30 AM – 3:30 PM",
+                        },
+                        {
+                          id: "genesis-protocol",
+                          name: "GENESIS PROTOCOL",
+                          dept: "OBGYN",
+                          desc: "High-Risk Obstetrics & Neonatal Resuscitation (NRP)",
+                          date: "20th Nov • 8:30 AM – 4:00 PM",
+                        },
+                        {
+                          id: "skeletal-frontier",
+                          name: "SKELETAL FRONTIER",
+                          dept: "Orthopaedics",
+                          desc: "Orthopaedic Trauma, Cast Application & Splinting",
+                          date: "20th Nov • 9:00 AM – 4:00 PM",
+                        },
+                        {
+                          id: "echoes-of-equilibrium",
+                          name: "ECHOES OF EQUILIBRIUM",
+                          dept: "Critical Care",
+                          desc: "Pediatric Critical Care Ultrasound & POCUS",
+                          date: "20th Nov • 8:30 AM – 2:00 PM",
+                        },
+                        {
+                          id: "molecules-in-motion",
+                          name: "MOLECULES IN MOTION",
+                          dept: "Biochemistry",
+                          desc: "Hands-on Lab Medicine & Advanced Diagnostic Modules",
+                          date: "20th Nov • 9:00 AM – 1:00 PM",
+                        },
+                      ].map((ws) => {
+                        const cap = capacities[ws.id];
+                        const isFull = cap?.isFull || false;
+                        const isSelected = selectedEvents.includes(ws.id);
+                        const remaining = cap ? cap.remaining : 50;
+
+                        return (
+                          <div
+                            key={ws.id}
+                            onClick={() => {
+                              if (!isFull) toggleEvent(ws.id);
+                            }}
+                            className={`p-3 rounded-xl border transition-all ${
+                              isFull
+                                ? "bg-zinc-950/60 border-zinc-900 opacity-60 cursor-not-allowed"
+                                : isSelected
+                                ? "bg-zinc-800 border-white text-white cursor-pointer shadow-md"
+                                : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200 cursor-pointer hover:border-zinc-700"
+                            }`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="font-semibold text-white">{ws.name}</span>
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300">
+                                    {ws.dept}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-zinc-400">{ws.desc}</p>
+                                <span className="text-[10px] text-zinc-500 block mt-0.5">{ws.date}</span>
+                              </div>
+
+                              <div className="flex items-center sm:flex-col items-end gap-1.5 shrink-0">
+                                {isFull ? (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">
+                                    SOLD OUT (50/50)
+                                  </span>
+                                ) : remaining <= 10 ? (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                    Only {remaining} seats left
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-850 text-zinc-300 border border-zinc-700/60">
+                                    {remaining} / 50 seats left
+                                  </span>
+                                )}
+
+                                <span className="text-[11px] font-semibold text-emerald-400">
+                                  FREE
                                 </span>
                               </div>
-                              <p className="text-[11px] text-zinc-400">{ws.desc}</p>
-                              <span className="text-[10px] text-zinc-500 block mt-0.5">{ws.date}</span>
-                            </div>
-
-                            <div className="flex items-center sm:flex-col items-end gap-1.5 shrink-0">
-                              {/* Capacity Badge */}
-                              {isFull ? (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">
-                                  SOLD OUT (50/50)
-                                </span>
-                              ) : remaining <= 10 ? (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                  Only {remaining} seats left (FCFS)
-                                </span>
-                              ) : (
-                                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-850 text-zinc-300 border border-zinc-700/60">
-                                  {remaining} / 50 seats left
-                                </span>
-                              )}
-
-                              {/* Fee Label */}
-                              <span className="text-[11px] font-semibold text-zinc-300">
-                                {ws.specialRule ? "FREE (if 2+ WS) / ₹100" : "Included in Pass"}
-                              </span>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 1B. Science Society - Academic Events */}
+                  <div className="space-y-2 pt-1">
+                    <h4 className="text-xs font-bold text-zinc-300">Academic Events</h4>
+
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      {[
+                        {
+                          id: "case-files",
+                          name: "CASE FILES",
+                          desc: "Clinical Case Presentation Competition",
+                          date: "19th Nov • 9:00 AM onwards",
+                        },
+                        {
+                          id: "inquistador",
+                          name: "INQUISTADOR",
+                          desc: "Oral Research Paper Presentation & Defense",
+                          date: "20th Nov • 9:00 AM onwards",
+                        },
+                        {
+                          id: "medventure",
+                          name: "MEDVENTURE",
+                          desc: "The Medical Game Show & Emergency ER Simulation",
+                          date: "18th Nov • 4:00 PM – 6:00 PM",
+                        },
+                        {
+                          id: "rickthinking-reviews",
+                          name: "RICKTHINKING REVIEWS",
+                          desc: "Creative Scientific Ideation Challenge",
+                          date: "Online Submission",
+                        },
+                      ].map((item) => {
+                        const isSelected = selectedEvents.includes(item.id);
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => toggleEvent(item.id)}
+                            className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                              isSelected
+                                ? "bg-zinc-800 border-white text-white"
+                                : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                            }`}
+                          >
+                            <div>
+                              <span className="font-semibold text-white block">{item.name}</span>
+                              <p className="text-[11px] text-zinc-400">{item.desc}</p>
+                              <span className="text-[10px] text-zinc-500">{item.date}</span>
+                            </div>
+                            <span className="font-semibold text-emerald-400">FREE</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
-                {/* Section B: Academic & Research Events */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between pb-1 border-b border-zinc-800/60">
-                    <span className="text-xs font-bold text-white">Academic &amp; Case Competitions</span>
-                    <span className="text-[10px] text-zinc-400">Open to all MBBS batches</span>
+                {/* ======================================================== */}
+                {/* 2. FINANCE SOCIETY (MAFIA)                               */}
+                {/* ======================================================== */}
+                <div className="space-y-4 pt-4 border-t border-zinc-800">
+                  <div className="pb-1 border-b border-zinc-800">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Finance Society (MAFIA)
+                    </h3>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 text-xs">
-                    <div
-                      onClick={() => toggleEvent("medventure")}
-                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedEvents.includes("medventure")
-                          ? "bg-zinc-800 border-white text-white"
-                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-white block">MedVenture (Medical Game Show)</span>
-                        <span className="text-[11px] text-zinc-500">18th Nov • Emergency ER House simulation</span>
-                      </div>
-                      <span className="font-semibold text-zinc-200">
-                        {delegateType === "maulanian" ? "FREE" : "₹50"}
-                      </span>
-                    </div>
+                  {/* 2A. Finance Society - Workshops */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-zinc-300">Workshops</h4>
 
-                    <div
-                      onClick={() => toggleEvent("rickthinking-reviews")}
-                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedEvents.includes("rickthinking-reviews")
-                          ? "bg-zinc-800 border-white text-white"
-                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-white block">RickThinking Reviews</span>
-                        <span className="text-[11px] text-zinc-500">Online • Creative medical review &amp; ideation</span>
-                      </div>
-                      <span className="font-semibold text-zinc-200">
-                        {delegateType === "maulanian" ? "FREE" : "₹50"}
-                      </span>
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      {[
+                        {
+                          id: "ai-in-medicine",
+                          name: "AI IN MEDICINE",
+                          dept: "Health Tech & AI",
+                          desc: "Machine Learning & Healthcare Diagnostic Models",
+                          date: "19th Nov • 11:00 AM – 2:00 PM",
+                        },
+                        {
+                          id: "prompt-engineering",
+                          name: "PROMPT ENGINEERING",
+                          dept: "Generative AI",
+                          desc: "Large Language Models & Clinical AI Architecture",
+                          date: "20th Nov • 2:00 PM – 5:00 PM",
+                        },
+                      ].map((ws) => {
+                        const cap = capacities[ws.id];
+                        const isFull = cap?.isFull || false;
+                        const isSelected = selectedEvents.includes(ws.id);
+                        const remaining = cap ? cap.remaining : 50;
+
+                        return (
+                          <div
+                            key={ws.id}
+                            onClick={() => {
+                              if (!isFull) toggleEvent(ws.id);
+                            }}
+                            className={`p-3 rounded-xl border transition-all ${
+                              isFull
+                                ? "bg-zinc-950/60 border-zinc-900 opacity-60 cursor-not-allowed"
+                                : isSelected
+                                ? "bg-zinc-800 border-white text-white cursor-pointer shadow-md"
+                                : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200 cursor-pointer hover:border-zinc-700"
+                            }`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="font-semibold text-white">{ws.name}</span>
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-300">
+                                    {ws.dept}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-zinc-400">{ws.desc}</p>
+                                <span className="text-[10px] text-zinc-500 block mt-0.5">{ws.date}</span>
+                              </div>
+
+                              <div className="flex items-center sm:flex-col items-end gap-1.5 shrink-0">
+                                {isFull ? (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">
+                                    SOLD OUT (50/50)
+                                  </span>
+                                ) : remaining <= 10 ? (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                    Only {remaining} seats left
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-850 text-zinc-300 border border-zinc-700/60">
+                                    {remaining} / 50 seats left
+                                  </span>
+                                )}
+
+                                <span className="text-[11px] font-semibold text-emerald-400">
+                                  FREE
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                </div>
 
-                {/* Section C: Business & Leadership Events (MAFIA) */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between pb-1 border-b border-zinc-800/60">
-                    <span className="text-xs font-bold text-white">Business &amp; Healthcare Innovation (MAFIA)</span>
-                    <span className="text-[10px] text-zinc-400">Finance &amp; MedTech leadership</span>
-                  </div>
+                  {/* 2B. Finance Society - Competitions */}
+                  <div className="space-y-2 pt-1">
+                    <h4 className="text-xs font-bold text-zinc-300">Competitions</h4>
 
-                  <div className="grid grid-cols-1 gap-2 text-xs">
-                    <div
-                      onClick={() => toggleEvent("the-boardroom")}
-                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedEvents.includes("the-boardroom")
-                          ? "bg-zinc-800 border-white text-white"
-                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-white block">The Boardroom</span>
-                        <span className="text-[11px] text-zinc-500">18th Nov • Problem-solving GD &amp; PI</span>
-                      </div>
-                      <span className="font-semibold text-zinc-200">₹99</span>
-                    </div>
-
-                    <div
-                      onClick={() => toggleEvent("business-bootcamp")}
-                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedEvents.includes("business-bootcamp")
-                          ? "bg-zinc-800 border-white text-white"
-                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-white block">Business Bootcamp for Medicos</span>
-                        <span className="text-[11px] text-zinc-500">19th &amp; 20th Nov • Clinic &amp; Startup Plan (2-Day)</span>
-                      </div>
-                      <span className="font-semibold text-zinc-200">₹349</span>
-                    </div>
-
-                    <div
-                      onClick={() => toggleEvent("venture-wars")}
-                      className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedEvents.includes("venture-wars")
-                          ? "bg-zinc-800 border-white text-white"
-                          : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-white block">Venture Wars</span>
-                        <span className="text-[11px] text-zinc-500">20th Nov • Startup Strategy Pitch Battle</span>
-                      </div>
-                      <span className="font-semibold text-zinc-200">₹249/team</span>
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      {[
+                        {
+                          id: "model-niti-aayog",
+                          name: "MODEL NITI AAYOG",
+                          desc: "National Healthcare Policy & Health Economics Simulation",
+                          date: "18th Nov • 10:00 AM – 3:00 PM",
+                        },
+                        {
+                          id: "guesstimate",
+                          name: "GUESSTIMATE",
+                          desc: "Quantitative Reasoning & Healthcare Market Sizing Battle",
+                          date: "19th Nov • 3:00 PM – 5:30 PM",
+                        },
+                        {
+                          id: "hackathon",
+                          name: "HACKATHON",
+                          desc: "MedTech & Healthcare Innovation Hackathon",
+                          date: "20th Nov • 9:00 AM – 5:00 PM",
+                        },
+                      ].map((item) => {
+                        const isSelected = selectedEvents.includes(item.id);
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => toggleEvent(item.id)}
+                            className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-colors ${
+                              isSelected
+                                ? "bg-zinc-800 border-white text-white"
+                                : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                            }`}
+                          >
+                            <div>
+                              <span className="font-semibold text-white block">{item.name}</span>
+                              <p className="text-[11px] text-zinc-400">{item.desc}</p>
+                              <span className="text-[10px] text-zinc-500">{item.date}</span>
+                            </div>
+                            <span className="font-semibold text-emerald-400">FREE</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -725,9 +792,9 @@ export default function RegisterPage() {
               {/* Total & Submit Button */}
               <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-zinc-500 uppercase block">Total Amount</span>
-                  <span className="text-xl sm:text-2xl font-bold text-white">
-                    {totalFee === 0 ? "FREE" : `₹${totalFee}`}
+                  <span className="text-[11px] text-zinc-500 uppercase block">Delegate Fee</span>
+                  <span className="text-xl sm:text-2xl font-bold text-emerald-400">
+                    FREE
                   </span>
                 </div>
 

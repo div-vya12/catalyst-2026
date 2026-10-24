@@ -31,24 +31,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Server-side fee calculation (prevents client tampering)
-    let calculatedTotal = 0;
-    const isMAMC = delegateType === "maulanian";
-
-    const workshopCount = selectedEvents.filter((id: string) =>
-      conferenceData.workshops.some((w) => w.id === id)
-    ).length;
-
-    selectedEvents.forEach((id: string) => {
-      if (id === "the-boardroom") calculatedTotal += 99;
-      if (id === "business-bootcamp") calculatedTotal += 349;
-      if (id === "venture-wars") calculatedTotal += 249;
-      if (id === "medventure") calculatedTotal += isMAMC ? 0 : 50;
-      if (id === "rickthinking-reviews") calculatedTotal += isMAMC ? 0 : 50;
-      if (id === "molecules-in-motion") {
-        calculatedTotal += workshopCount >= 2 ? 0 : 100;
-      }
-    });
+    // 2. Uniform delegate pricing (No distinction of fees between Maulanians and Non-Maulanians)
+    const calculatedTotal = 0;
 
     // 3. Generate unique Ticket/Registration ID for 2026
     const ticketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
