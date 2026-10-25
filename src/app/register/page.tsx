@@ -19,9 +19,12 @@ import {
   AlertTriangle,
   RefreshCw,
   Sparkles,
+  ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { conferenceData } from "@/data/conferenceData";
+import { conferenceData, WORKSHOP_PRICES } from "@/data/conferenceData";
+import { launchRazorpayCheckout } from "@/lib/razorpayClient";
 
 interface WorkshopCap {
   id: string;
@@ -142,12 +145,49 @@ export default function RegisterPage() {
     }
   };
 
-  // Uniform pricing: No distinction of fees between Maulanians and non-Maulanians
+  // Calculate total fee based on selected workshops
   const calculateTotal = () => {
-    return 0;
+    return selectedEvents.reduce((total, id) => {
+      return total + (WORKSHOP_PRICES[id] || 0);
+    }, 0);
   };
 
   const totalFee = calculateTotal();
+
+  const handleTriggerRazorpay = (ticketId: string, amount: number) => {
+    setIsSubmitting(true);
+    launchRazorpayCheckout({
+      ticketId,
+      amount,
+      fullName,
+      email,
+      phone,
+      onSuccess: (data: any) => {
+        setIsSubmitting(false);
+        setRegisteredPass((prev: any) => ({
+          ...prev,
+          status: "CONFIRMED",
+          paymentId: data.paymentId,
+        }));
+        try {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+        } catch {
+          // ignore
+        }
+      },
+      onError: (err: any) => {
+        setIsSubmitting(false);
+        alert(`Payment notice: ${err?.message || "Payment incomplete."}`);
+      },
+      onDismiss: () => {
+        setIsSubmitting(false);
+      },
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,15 +221,66 @@ export default function RegisterPage() {
 
       const json = await res.json();
       if (res.ok && json.success) {
-        setRegisteredPass(json.data);
-        try {
-          confetti({
-            particleCount: 80,
-            spread: 60,
-            origin: { y: 0.6 },
+        const record = json.data;
+        const currentTicketId = json.ticketId || record.ticketId;
+
+        // If payment is required (> 0), launch Razorpay Checkout immediately
+        if (json.requiresPayment && json.amountPayable > 0) {
+          setRegisteredPass({
+            ...record,
+            ticketId: currentTicketId,
+            status: "PENDING_PAYMENT",
           });
-        } catch {
-          // ignore
+
+          // Launch Razorpay popup
+          launchRazorpayCheckout({
+            ticketId: currentTicketId,
+            amount: json.amountPayable,
+            fullName,
+            email,
+            phone,
+            onSuccess: (payData: any) => {
+              setIsSubmitting(false);
+              setRegisteredPass((prev: any) => ({
+                ...prev,
+                status: "CONFIRMED",
+                paymentId: payData.paymentId,
+              }));
+              try {
+                confetti({
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                });
+              } catch {
+                // ignore
+              }
+            },
+            onError: (payErr: any) => {
+              setIsSubmitting(false);
+              console.warn("Payment error or dismiss:", payErr);
+            },
+            onDismiss: () => {
+              setIsSubmitting(false);
+            },
+          });
+        } else {
+          // 0 fee registration
+          setRegisteredPass({
+            ...record,
+            ticketId: currentTicketId,
+            status: "CONFIRMED",
+          });
+          try {
+            confetti({
+              particleCount: 80,
+              spread: 60,
+              origin: { y: 0.6 },
+            });
+          } catch {
+            // ignore
+          }
+          setIsSubmitting(false);
         }
       } else {
         if (json.code === "WORKSHOP_FULL") {
@@ -198,9 +289,10 @@ export default function RegisterPage() {
         } else {
           alert(json.error || "Failed to process registration");
         }
+        setIsSubmitting(false);
       }
     } catch {
-      // Offline / fallback simulated pass
+      // Offline fallback
       const fallbackTicketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       setRegisteredPass({
         ticketId: fallbackTicketId,
@@ -213,9 +305,8 @@ export default function RegisterPage() {
         collegeIdUrl,
         selectedEvents,
         amountPayable: totalFee,
-        status: "CONFIRMED",
+        status: totalFee === 0 ? "CONFIRMED" : "PENDING_PAYMENT",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -234,7 +325,7 @@ export default function RegisterPage() {
 
         {!registeredPass ? (
           <div className="bg-[#11131c] border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-            {/* Header - Clean, no short descriptive phrase or allocation rule */}
+            {/* Header */}
             <div className="border-b border-zinc-800 pb-5 mb-6">
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
                 Registration
@@ -486,6 +577,7 @@ export default function RegisterPage() {
                           dept: "Anaesthesia",
                           desc: "Fundamentals of Anaesthesia & Airway Management",
                           date: "18th Nov • 11:00 AM – 3:30 PM",
+                          price: 399,
                         },
                         {
                           id: "know-your-knots",
@@ -493,6 +585,7 @@ export default function RegisterPage() {
                           dept: "Surgery",
                           desc: "Basic Surgical Skills, Knot Tying & Suturing",
                           date: "18th & 19th Nov",
+                          price: 449,
                         },
                         {
                           id: "optic-odyssey",
@@ -500,6 +593,7 @@ export default function RegisterPage() {
                           dept: "Ophthalmology",
                           desc: "Clinical Pearls in Ophthalmology & Goat's Eye Suturing",
                           date: "19th Nov • 8:00 AM – 5:00 PM",
+                          price: 449,
                         },
                         {
                           id: "rhythm-unravelled",
@@ -507,6 +601,7 @@ export default function RegisterPage() {
                           dept: "Medicine",
                           desc: "ECG Masterclass & Waveform Interpretation",
                           date: "19th Nov • 8:30 AM – 3:30 PM",
+                          price: 299,
                         },
                         {
                           id: "genesis-protocol",
@@ -514,6 +609,7 @@ export default function RegisterPage() {
                           dept: "OBGYN",
                           desc: "High-Risk Obstetrics & Neonatal Resuscitation (NRP)",
                           date: "20th Nov • 8:30 AM – 4:00 PM",
+                          price: 399,
                         },
                         {
                           id: "skeletal-frontier",
@@ -521,6 +617,7 @@ export default function RegisterPage() {
                           dept: "Orthopaedics",
                           desc: "Orthopaedic Trauma, Cast Application & Splinting",
                           date: "20th Nov • 9:00 AM – 4:00 PM",
+                          price: 349,
                         },
                         {
                           id: "echoes-of-equilibrium",
@@ -528,6 +625,7 @@ export default function RegisterPage() {
                           dept: "Critical Care",
                           desc: "Pediatric Critical Care Ultrasound & POCUS",
                           date: "20th Nov • 8:30 AM – 2:00 PM",
+                          price: 399,
                         },
                         {
                           id: "molecules-in-motion",
@@ -535,6 +633,7 @@ export default function RegisterPage() {
                           dept: "Biochemistry",
                           desc: "Hands-on Lab Medicine & Advanced Diagnostic Modules",
                           date: "20th Nov • 9:00 AM – 1:00 PM",
+                          price: 299,
                         },
                       ].map((ws) => {
                         const cap = capacities[ws.id];
@@ -584,8 +683,8 @@ export default function RegisterPage() {
                                   </span>
                                 )}
 
-                                <span className="text-[11px] font-semibold text-emerald-400">
-                                  FREE
+                                <span className="text-xs font-bold text-white bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
+                                  ₹{ws.price}
                                 </span>
                               </div>
                             </div>
@@ -672,6 +771,7 @@ export default function RegisterPage() {
                           dept: "Health Tech & AI",
                           desc: "Machine Learning & Healthcare Diagnostic Models",
                           date: "19th Nov • 11:00 AM – 2:00 PM",
+                          price: 299,
                         },
                         {
                           id: "prompt-engineering",
@@ -679,6 +779,7 @@ export default function RegisterPage() {
                           dept: "Generative AI",
                           desc: "Large Language Models & Clinical AI Architecture",
                           date: "20th Nov • 2:00 PM – 5:00 PM",
+                          price: 299,
                         },
                       ].map((ws) => {
                         const cap = capacities[ws.id];
@@ -728,8 +829,8 @@ export default function RegisterPage() {
                                   </span>
                                 )}
 
-                                <span className="text-[11px] font-semibold text-emerald-400">
-                                  FREE
+                                <span className="text-xs font-bold text-white bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
+                                  ₹{ws.price}
                                 </span>
                               </div>
                             </div>
@@ -792,19 +893,29 @@ export default function RegisterPage() {
               {/* Total & Submit Button */}
               <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-zinc-500 uppercase block">Delegate Fee</span>
-                  <span className="text-xl sm:text-2xl font-bold text-emerald-400">
-                    FREE
+                  <span className="text-[11px] text-zinc-500 uppercase block">Total Payable</span>
+                  <span className="text-xl sm:text-2xl font-bold text-white">
+                    {totalFee === 0 ? (
+                      <span className="text-emerald-400">FREE</span>
+                    ) : (
+                      `₹${totalFee}`
+                    )}
                   </span>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-white text-black hover:bg-zinc-200 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl text-xs sm:text-sm font-semibold bg-white text-black hover:bg-zinc-200 transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg"
                 >
                   <CreditCard className="w-4 h-4" />
-                  <span>{isSubmitting ? "Processing..." : "Complete Registration"}</span>
+                  <span>
+                    {isSubmitting
+                      ? "Processing..."
+                      : totalFee > 0
+                      ? `Pay ₹${totalFee} (Razorpay)`
+                      : "Complete Free Registration"}
+                  </span>
                 </button>
               </div>
             </form>
@@ -812,13 +923,29 @@ export default function RegisterPage() {
         ) : (
           /* Confirmation Screen */
           <div className="bg-[#11131c] border border-zinc-800 rounded-2xl p-6 sm:p-8 text-center animate-in fade-in">
-            <div className="w-14 h-14 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-7 h-7" />
+            <div
+              className={`w-14 h-14 rounded-full border flex items-center justify-center mx-auto mb-4 ${
+                registeredPass.status === "CONFIRMED"
+                  ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-400"
+                  : "bg-amber-950/60 border-amber-500/40 text-amber-400"
+              }`}
+            >
+              {registeredPass.status === "CONFIRMED" ? (
+                <CheckCircle2 className="w-7 h-7" />
+              ) : (
+                <CreditCard className="w-7 h-7" />
+              )}
             </div>
 
-            <h2 className="text-2xl font-bold text-white mb-1">Registration Successful</h2>
+            <h2 className="text-2xl font-bold text-white mb-1">
+              {registeredPass.status === "CONFIRMED"
+                ? "Registration Confirmed"
+                : "Registration Initiated (Payment Pending)"}
+            </h2>
             <p className="text-xs text-zinc-400 mb-6">
-              Your delegate pass has been issued for CATALYST 2026 at Maulana Azad Medical College.
+              {registeredPass.status === "CONFIRMED"
+                ? "Your delegate pass and workshop seats have been officially reserved."
+                : "Complete payment to confirm and secure your workshop seats."}
             </p>
 
             <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-6 text-left space-y-3 relative overflow-hidden">
@@ -839,26 +966,70 @@ export default function RegisterPage() {
 
               <div className="pt-2 border-t border-zinc-800 grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-[10px] text-zinc-500 block">Dates</span>
-                  <span className="text-zinc-300 font-medium">18th – 20th Nov 2026</span>
+                  <span className="text-[10px] text-zinc-500 block">Total Amount</span>
+                  <span className="text-white font-semibold">
+                    {registeredPass.amountPayable === 0 ? "FREE" : `₹${registeredPass.amountPayable}`}
+                  </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-zinc-500 block">Category</span>
-                  <span className="text-zinc-300 font-medium capitalize">
-                    {registeredPass.delegateType}
+                  <span className="text-[10px] text-zinc-500 block">Payment Status</span>
+                  <span
+                    className={`text-[11px] font-bold ${
+                      registeredPass.status === "CONFIRMED"
+                        ? "text-emerald-400"
+                        : "text-amber-400"
+                    }`}
+                  >
+                    {registeredPass.status === "CONFIRMED" ? "PAID / CONFIRMED" : "PENDING"}
                   </span>
                 </div>
               </div>
+
+              {registeredPass.paymentId && (
+                <div className="pt-2 border-t border-zinc-800 text-xs">
+                  <span className="text-[10px] text-zinc-500 block">Razorpay Payment ID</span>
+                  <span className="font-mono text-zinc-300 text-[11px]">
+                    {registeredPass.paymentId}
+                  </span>
+                </div>
+              )}
             </div>
 
+            {/* If pending payment, show complete payment options */}
+            {registeredPass.status !== "CONFIRMED" && (
+              <div className="space-y-3 mb-6 max-w-md mx-auto">
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleTriggerRazorpay(registeredPass.ticketId, registeredPass.amountPayable)
+                  }
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-black hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pay ₹{registeredPass.amountPayable} with Razorpay Now</span>
+                </button>
+
+                <Link
+                  href={`/checkout?ticketId=${encodeURIComponent(registeredPass.ticketId)}`}
+                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <span>Open Dedicated Razorpay Checkout Page</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={() => alert("Downloading pass PDF...")}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download Pass</span>
-              </button>
+              {registeredPass.status === "CONFIRMED" && (
+                <button
+                  onClick={() => window.print()}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Pass / Receipt</span>
+                </button>
+              )}
               <Link
                 href="/"
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors"

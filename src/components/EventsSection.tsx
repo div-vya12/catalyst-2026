@@ -191,9 +191,16 @@ export const EventsSection: React.FC = () => {
                       <div>
                         {/* Department & Date */}
                         <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
-                            {workshop.department}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
+                              {workshop.department}
+                            </span>
+                            {workshop.fee && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                                {typeof workshop.fee === "string" ? workshop.fee : `₹${workshop.price}`}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[11px]">{workshop.display_date}</span>
                         </div>
 
@@ -400,9 +407,16 @@ export const EventsSection: React.FC = () => {
                       <div>
                         {/* Header */}
                         <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
-                            MAFIA Workshop
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-300">
+                              MAFIA Workshop
+                            </span>
+                            {event.fee && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                                {typeof event.fee === "string" ? event.fee : `₹${event.price}`}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[11px]">{event.display_date}</span>
                         </div>
 
@@ -594,7 +608,7 @@ export const EventsSection: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-900 rounded-lg text-[11px]">
+              <div className="grid grid-cols-3 gap-2 p-3 bg-zinc-900 rounded-lg text-[11px]">
                 <div>
                   <span className="text-zinc-500 block">Date &amp; Time</span>
                   <span className="text-zinc-200 font-medium">
@@ -604,6 +618,16 @@ export const EventsSection: React.FC = () => {
                 <div>
                   <span className="text-zinc-500 block">Venue</span>
                   <span className="text-zinc-200 font-medium">{selectedWorkshopModal.venue}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block">Fee</span>
+                  <span className="text-emerald-400 font-bold">
+                    {typeof selectedWorkshopModal.fee === "string"
+                      ? selectedWorkshopModal.fee
+                      : selectedWorkshopModal.price
+                      ? `₹${selectedWorkshopModal.price}`
+                      : "Included"}
+                  </span>
                 </div>
               </div>
 
@@ -771,7 +795,7 @@ export const EventsSection: React.FC = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2 p-3 bg-zinc-900 rounded-lg text-[11px]">
+              <div className="grid grid-cols-3 gap-2 p-3 bg-zinc-900 rounded-lg text-[11px]">
                 <div>
                   <span className="text-zinc-500 block">Date &amp; Time</span>
                   <span className="text-zinc-200 font-medium">
@@ -781,6 +805,16 @@ export const EventsSection: React.FC = () => {
                 <div>
                   <span className="text-zinc-500 block">Venue</span>
                   <span className="text-zinc-200 font-medium">{selectedMafiaModal.venue}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block">Fee</span>
+                  <span className="text-emerald-400 font-bold">
+                    {typeof selectedMafiaModal.fee === "string"
+                      ? selectedMafiaModal.fee
+                      : selectedMafiaModal.price
+                      ? `₹${selectedMafiaModal.price}`
+                      : "Included"}
+                  </span>
                 </div>
               </div>
 

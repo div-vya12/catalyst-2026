@@ -18,7 +18,7 @@ import {
   Check,
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { conferenceData } from "@/data/conferenceData";
+import { conferenceData, WORKSHOP_PRICES } from "@/data/conferenceData";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -49,9 +49,11 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
     );
   };
 
-  // Fee calculation - Uniform free pass
+  // Fee calculation based on workshop prices
   const calculateTotal = () => {
-    return 0;
+    return selectedEvents.reduce((total, id) => {
+      return total + (WORKSHOP_PRICES[id] || 0);
+    }, 0);
   };
 
   const handleSimulatePayment = (e: React.FormEvent) => {

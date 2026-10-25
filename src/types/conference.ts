@@ -79,7 +79,8 @@ export interface Workshop {
   sessions?: WorkshopSession[];
   venue: string;
   registration: WorkshopRegistration;
-  fee: WorkshopFee | null;
+  fee?: WorkshopFee | string | number | null;
+  price?: number;
   contacts: ContactPerson[];
   detailed_format?: DetailedOrthopaedicFormat;
 }
@@ -163,6 +164,7 @@ export interface MafiaEvent {
   time: string;
   venue: string;
   fee: string | MafiaFee;
+  price?: number;
   registration_url?: string;
   registration_urls?: {
     undergraduates: string;

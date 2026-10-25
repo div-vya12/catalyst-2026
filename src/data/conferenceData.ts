@@ -1,5 +1,22 @@
 import { ConferenceData } from "@/types/conference";
 
+export const WORKSHOP_PRICES: Record<string, number> = {
+  "code-nebula": 399,
+  "know-your-knots": 449,
+  "optic-odyssey": 449,
+  "rhythm-unravelled": 299,
+  "genesis-protocol": 399,
+  "skeletal-frontier": 349,
+  "echoes-of-equilibrium": 399,
+  "molecules-in-motion": 299,
+  "ai-in-medicine": 299,
+  "prompt-engineering": 299,
+};
+
+export const getEventPrice = (eventId: string): number => {
+  return WORKSHOP_PRICES[eventId] || 0;
+};
+
 export const conferenceData: ConferenceData = {
   conference: {
     name: "CATALYST 2026",
@@ -94,7 +111,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/w3Lgg6FbSP2gDcRe7",
         non_maulanian_url: "https://forms.gle/godTdeX2TcXR1V8v5",
       },
-      fee: null,
+      price: 399,
+      fee: "₹399",
       contacts: [
         { name: "Abhilasha Meena", phone: "+91 9898514569" },
         { name: "Amrita Roy", phone: "+91 8768494909" },
@@ -126,7 +144,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/HFWyxyQ5KFfbsztYA",
         non_maulanian_url: "https://forms.gle/AqBGSSgmxvGGT3As7",
       },
-      fee: null,
+      price: 449,
+      fee: "₹449",
       contacts: [
         { name: "Anchit Patel", phone: "+91 8529381376" },
         { name: "Kirti Sachdeva", phone: "+91 9311246300" },
@@ -155,7 +174,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/YrnZPzNRtZ8zVhju5",
         non_maulanian_url: "https://forms.gle/sfMmpuPCjduJY6bd7",
       },
-      fee: null,
+      price: 449,
+      fee: "₹449",
       contacts: [
         { name: "Anchit Patel", phone: "+91 8529381376" },
         { name: "Ansh Agarwal", phone: "+91 8000230796" },
@@ -184,7 +204,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/Qv93JqTqS7wKVvvP6",
         non_maulanian_url: "https://forms.gle/Y9E9KXZSPvVwdGXE6",
       },
-      fee: null,
+      price: 299,
+      fee: "₹299",
       contacts: [
         { name: "Utkarsh Sharma", phone: "+91 9821769423" },
         { name: "Paras Jain", phone: "+91 9289691376" },
@@ -213,7 +234,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/EHCnZczYXQahtfav6",
         non_maulanian_url: "https://forms.gle/rjQLT7oSoAi5DAJJ6",
       },
-      fee: null,
+      price: 399,
+      fee: "₹399",
       contacts: [
         { name: "Kavya Mehta", phone: "+91 8950284902" },
         { name: "Dakshita Bhardwaj", phone: "+91 7303532735" },
@@ -263,7 +285,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/2UK6fWsSG3YzHMqy5",
         non_maulanian_url: "https://forms.gle/Uf32XC4ko2Pt12Au8",
       },
-      fee: null,
+      price: 349,
+      fee: "₹349",
       contacts: [
         { name: "Ajitesh Dash", phone: "+91 8178405394" },
         { name: "Priyanshi", phone: "+91 8619929994" },
@@ -292,7 +315,8 @@ export const conferenceData: ConferenceData = {
         maulanian_url: "https://forms.gle/KJAt2UK7YWmRg9kw8",
         non_maulanian_url: "https://forms.gle/isKQmsRSeBpdh6Ju7",
       },
-      fee: null,
+      price: 399,
+      fee: "₹399",
       contacts: [
         { name: "Aadya Roy", phone: "+91 9971483808" },
         { name: "Mananya Muskan", phone: "+91 7897976027" },
@@ -322,7 +346,8 @@ export const conferenceData: ConferenceData = {
         non_maulanian_url: "https://forms.gle/aNHJCFPTsCSBKNXH9",
         note: "Single registration link for all participants",
       },
-      fee: null,
+      price: 299,
+      fee: "₹299",
       contacts: [
         { name: "Megh Chhabda", phone: "+91 9421131610" },
         { name: "Mananya Muskan", phone: "+91 7897976027" },
@@ -514,7 +539,8 @@ export const conferenceData: ConferenceData = {
         display_date: "19th November 2026",
         time: "11:00 AM – 2:00 PM",
         venue: "Computer Center, BL Taneja Block, MAMC",
-        fee: "FREE",
+        price: 299,
+        fee: "₹299",
         registration_url: "/register",
         highlights: [
           "Machine learning & neural network foundations in clinical diagnosis",
@@ -535,7 +561,8 @@ export const conferenceData: ConferenceData = {
         display_date: "20th November 2026",
         time: "2:00 PM – 5:00 PM",
         venue: "PGMET Lab, BL Taneja Block, MAMC",
-        fee: "FREE",
+        price: 299,
+        fee: "₹299",
         registration_url: "/register",
         highlights: [
           "Zero-shot, few-shot, and Chain-of-Thought (CoT) prompting for clinical diagnosis",

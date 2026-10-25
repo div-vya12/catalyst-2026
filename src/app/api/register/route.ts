@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { conferenceData } from "@/data/conferenceData";
+import { conferenceData, WORKSHOP_PRICES } from "@/data/conferenceData";
 import { saveRegistration } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -31,8 +31,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Uniform delegate pricing (No distinction of fees between Maulanians and Non-Maulanians)
-    const calculatedTotal = 0;
+    // 2. Workshop pricing calculation
+    const calculatedTotal = selectedEvents.reduce((total: number, id: string) => {
+      return total + (WORKSHOP_PRICES[id] || 0);
+    }, 0);
 
     // 3. Generate unique Ticket/Registration ID for 2026
     const ticketId = `CAT26-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -59,6 +61,9 @@ export async function POST(req: NextRequest) {
         message: "Registration recorded successfully",
         storageSource: source,
         data: record,
+        amountPayable: calculatedTotal,
+        requiresPayment: calculatedTotal > 0,
+        ticketId,
       },
       { status: 200 }
     );

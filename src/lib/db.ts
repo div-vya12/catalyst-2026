@@ -455,6 +455,46 @@ export async function getAllRegistrations() {
 }
 
 /**
+ * Update Registration Payment Status upon successful Razorpay Checkout
+ */
+export async function updateRegistrationPayment(
+  ticketId: string,
+  paymentId: string,
+  status: string = "CONFIRMED"
+) {
+  const client = getPrismaClient();
+
+  if (client) {
+    try {
+      const updated = await client.registration.updateMany({
+        where: { ticketId },
+        data: {
+          status,
+          paymentId,
+          updatedAt: new Date(),
+        },
+      });
+      if (updated.count > 0) {
+        return { success: true, count: updated.count };
+      }
+    } catch (error) {
+      console.error("[Database Error] Failed to update payment via Prisma:", error);
+    }
+  }
+
+  // Fallback memory store update
+  const record = memoryStore.find((r) => r.ticketId.toUpperCase() === ticketId.toUpperCase());
+  if (record) {
+    record.status = status;
+    record.paymentId = paymentId;
+    record.updatedAt = new Date().toISOString();
+    return { success: true, record };
+  }
+
+  return { success: false, error: "Registration not found" };
+}
+
+/**
  * Delete a registration (for Admin)
  */
 export async function deleteRegistration(ticketId: string) {

@@ -53,6 +53,7 @@ interface RegistrationRecord {
   amountPayable: number;
   currency: string;
   status: string;
+  paymentId?: string | null;
   createdAt: string;
 }
 
