@@ -1,6 +1,6 @@
 /**
- * Razorpay Client Utility for CATALYST 2026
- * Handles dynamic script injection, order creation, and modal checkout.
+ * Razorpay Standard Web Checkout Client
+ * Dynamic script injection, order creation, modal checkout & signature verification
  */
 
 declare global {
@@ -26,7 +26,7 @@ export const loadRazorpayScript = (): Promise<boolean> => {
     script.async = true;
     script.onload = () => resolve(true);
     script.onerror = () => {
-      console.warn("Failed to load official Razorpay script.");
+      console.error("Failed to load Razorpay Checkout script.");
       resolve(false);
     };
     document.body.appendChild(script);
@@ -34,84 +34,68 @@ export const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export interface RazorpayCheckoutOptions {
-  ticketId: string;
-  amount: number; // in INR
-  fullName: string;
-  email: string;
-  phone: string;
+  ticketId?: string;
+  amount: number; // in INR (e.g. 399)
+  fullName?: string;
+  email?: string;
+  phone?: string;
   onSuccess: (data: any) => void;
   onError: (err: any) => void;
   onDismiss?: () => void;
 }
 
 export const launchRazorpayCheckout = async ({
-  ticketId,
+  ticketId = "",
   amount,
-  fullName,
-  email,
-  phone,
+  fullName = "Delegate",
+  email = "delegate@mamc.ac.in",
+  phone = "",
   onSuccess,
   onError,
   onDismiss,
 }: RazorpayCheckoutOptions) => {
   try {
-    // 1. Create order from backend
-    const orderRes = await fetch("/api/payment/create-order", {
+    const amountInPaise = Math.round(amount * 100);
+
+    // 1. Create order on backend: POST /api/create-order
+    const orderRes = await fetch("/api/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticketId, amount }),
+      body: JSON.stringify({
+        amount: amountInPaise,
+        currency: "INR",
+        receipt: ticketId ? `rcpt_${ticketId}` : `rcpt_${Date.now()}`,
+        ticketId,
+      }),
     });
 
     const orderData = await orderRes.json();
-    if (!orderRes.ok || !orderData.success) {
-      throw new Error(orderData.error || "Failed to initialize payment order");
+    if (!orderRes.ok || !orderData.order_id && !orderData.orderId) {
+      throw new Error(orderData.error || orderData.details || "Failed to create payment order");
     }
 
-    // 2. Load Razorpay script
+    const orderId = orderData.order_id || orderData.orderId;
+    const keyId =
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+      orderData.key_id ||
+      orderData.keyId ||
+      "rzp_test_TsQizXRHi41jue";
+
+    // 2. Ensure Razorpay script is loaded
     const scriptLoaded = await loadRazorpayScript();
-
-    // 3. If in simulated mode or script failed, offer simulated checkout
-    if (orderData.isSimulated || !scriptLoaded || !window.Razorpay) {
-      console.info("[Razorpay Notice] Operating in simulation mode:", orderData.message);
-      
-      const confirmSimulated = window.confirm(
-        `[Razorpay Demo Mode]\n\nTicket: ${ticketId}\nDelegate: ${fullName}\nAmount: ₹${amount}\n\nClick OK to simulate successful payment, or Cancel to abort.`
-      );
-
-      if (confirmSimulated) {
-        const simulatedPaymentId = `pay_sim_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-        const verifyRes = await fetch("/api/payment/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ticketId,
-            razorpay_order_id: orderData.orderId,
-            razorpay_payment_id: simulatedPaymentId,
-            razorpay_signature: "simulated_valid_signature",
-          }),
-        });
-
-        const verifyData = await verifyRes.json();
-        if (verifyRes.ok && verifyData.success) {
-          onSuccess(verifyData);
-        } else {
-          onError(new Error(verifyData.error || "Verification failed"));
-        }
-      } else {
-        if (onDismiss) onDismiss();
-      }
-      return;
+    if (!scriptLoaded || !window.Razorpay) {
+      throw new Error("Unable to load Razorpay checkout SDK. Please check your internet connection.");
     }
 
-    // 4. Launch Official Razorpay Modal
+    // 3. Configure Razorpay modal options
     const options = {
-      key: orderData.keyId,
+      key: keyId,
       amount: orderData.amount,
       currency: orderData.currency || "INR",
       name: "CATALYST 2026",
-      description: "MAMC Clinical Workshop & Delegate Registration",
+      description: "MAMC Clinical Workshops & Delegate Registration",
       image: "/logo.png",
-      order_id: orderData.orderId,
+      order_id: orderId,
       prefill: {
         name: fullName,
         email: email,
@@ -122,16 +106,25 @@ export const launchRazorpayCheckout = async ({
       },
       modal: {
         ondismiss: function () {
+          console.log("[Razorpay] Checkout modal dismissed by user");
           if (onDismiss) onDismiss();
         },
       },
-      handler: async function (response: any) {
+      handler: async function (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+      }) {
         try {
-          const verifyRes = await fetch("/api/payment/verify", {
+          // 4. Send signatures to verification endpoint: POST /api/verify-payment
+          const verifyRes = await fetch("/api/verify-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               ticketId,
+              order_id: response.razorpay_order_id,
+              payment_id: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -142,7 +135,7 @@ export const launchRazorpayCheckout = async ({
           if (verifyRes.ok && verifyData.success) {
             onSuccess(verifyData);
           } else {
-            onError(new Error(verifyData.error || "Payment signature verification failed"));
+            onError(new Error(verifyData.error || "Payment verification failed"));
           }
         } catch (err: any) {
           onError(err);
@@ -151,12 +144,20 @@ export const launchRazorpayCheckout = async ({
     };
 
     const rzp = new window.Razorpay(options);
+
+    // 5. Handle payment failure event
     rzp.on("payment.failed", function (response: any) {
-      onError(new Error(response?.error?.description || "Payment transaction failed"));
+      const errorDescription =
+        response?.error?.description ||
+        response?.error?.reason ||
+        "Payment transaction failed or was declined.";
+      console.error("[Razorpay Payment Failed]:", response?.error);
+      onError(new Error(errorDescription));
     });
+
     rzp.open();
   } catch (err: any) {
-    console.error("Razorpay checkout launch error:", err);
+    console.error("[Razorpay Launch Error]:", err);
     onError(err);
   }
 };
